@@ -352,6 +352,12 @@
         transform: translateY(-2px);
         box-shadow: 0 6px 16px rgba(56, 189, 248, 0.2);
       }
+      .action-pill-btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: var(--shadow-soft) !important;
+      }
 
       .url-pill-bar {
         display: flex;
@@ -517,12 +523,6 @@
       }
       .folder-section-label i { color: var(--primary); font-size: 0.72rem; }
 
-      .folder-chips-row {
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-      }
-
       .folder-tree-panel {
         border: 1.5px solid var(--glass-border-ice);
         border-radius: var(--radius-md);
@@ -617,7 +617,7 @@
         opacity: 1;
       }
       @media (max-width: 680px) {
-        .folder-tree-actions { opacity: 1; } /* 移动端始终显示操作按钮 */
+        .folder-tree-actions { opacity: 1; }
       }
       .folder-tree-action-btn {
         width: 22px;
@@ -824,6 +824,372 @@
         outline: none;
         margin-top: 10px;
       }
+
+      /* =========================================================
+         ===== 本地历史面板（全面升级） =====
+         ========================================================= */
+      .history-stats-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+        padding: 10px 14px;
+        margin-bottom: 12px;
+        border-radius: var(--radius-md);
+        background: var(--primary-surface);
+        border: 1px solid var(--glass-border-ice);
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-sub);
+      }
+      .history-stat-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .history-stat-item i {
+        color: var(--primary);
+        font-size: 0.75rem;
+      }
+      .history-stat-item strong {
+        color: var(--primary-dark);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.84rem;
+      }
+      html[data-theme="dark"] .history-stat-item strong { color: var(--primary-light); }
+
+      .history-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+      }
+      .history-search-box {
+        flex: 1;
+        min-width: 140px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 12px;
+        border-radius: var(--radius-pill);
+        background: var(--glass-subtle);
+        border: 1.5px solid var(--glass-border-ice);
+        transition: var(--transition);
+      }
+      .history-search-box:focus-within {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+      }
+      .history-search-box > i {
+        color: var(--text-muted);
+        font-size: 0.78rem;
+        flex-shrink: 0;
+      }
+      .history-search-box input {
+        flex: 1;
+        min-width: 0;
+        border: none;
+        background: transparent;
+        outline: none;
+        color: var(--text-main);
+        font-size: 0.84rem;
+        font-family: inherit;
+      }
+      .history-search-box input::placeholder { color: var(--text-muted); }
+      .history-search-clear {
+        cursor: pointer;
+        color: var(--text-muted);
+        font-size: 0.78rem;
+        transition: var(--transition);
+        flex-shrink: 0;
+      }
+      .history-search-clear:hover { color: #ef4444; }
+
+      .history-sort-select {
+        padding: 7px 12px;
+        border-radius: var(--radius-pill);
+        border: 1.5px solid var(--glass-border-ice);
+        background: var(--glass-subtle);
+        color: var(--text-sub);
+        font-size: 0.78rem;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        outline: none;
+        transition: var(--transition);
+      }
+      .history-sort-select:hover { border-color: var(--primary-light); }
+
+      .history-view-toggle {
+        display: inline-flex;
+        padding: 3px;
+        gap: 2px;
+        border-radius: var(--radius-pill);
+        border: 1.5px solid var(--glass-border-ice);
+        background: var(--glass-subtle);
+        flex-shrink: 0;
+      }
+      .history-view-toggle button {
+        width: 28px;
+        height: 24px;
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        border-radius: var(--radius-pill);
+        cursor: pointer;
+        font-size: 0.7rem;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .history-view-toggle button.active {
+        background: var(--primary);
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+      }
+
+      .history-batch-bar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        padding: 8px 10px;
+        margin-bottom: 8px;
+        border-radius: var(--radius-md);
+        background: var(--glass-subtle);
+        border: 1px solid var(--glass-border);
+        font-size: 0.76rem;
+      }
+      .history-batch-bar .batch-info {
+        font-weight: 700;
+        color: var(--text-muted);
+        margin-right: auto;
+      }
+      .history-batch-bar .batch-info.has-selection { color: var(--primary); }
+
+      .history-group { margin-bottom: 4px; }
+      .history-group-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        letter-spacing: 0.04em;
+        margin: 14px 0 8px;
+      }
+      .history-group-label i { color: var(--primary); font-size: 0.7rem; }
+      .history-group-label::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--glass-border-ice);
+      }
+
+      /* 网格视图 */
+      .history-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+        gap: 8px;
+      }
+      .history-grid-card {
+        position: relative;
+        border-radius: var(--radius-md);
+        border: 1.5px solid var(--glass-border);
+        background: var(--glass-subtle);
+        overflow: hidden;
+        transition: var(--transition);
+        cursor: pointer;
+      }
+      .history-grid-card:hover {
+        border-color: var(--primary-light);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(2, 132, 199, 0.16);
+      }
+      .history-grid-card.is-selected {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.22);
+      }
+      .history-card-check {
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        z-index: 3;
+        width: 15px;
+        height: 15px;
+        accent-color: var(--primary);
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.18s ease;
+      }
+      .history-grid-card:hover .history-card-check,
+      .history-grid-card.is-selected .history-card-check { opacity: 1; }
+      @media (max-width: 680px) { .history-card-check { opacity: 1; } }
+
+      .history-thumb {
+        width: 100%;
+        height: 86px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--glass-surface);
+        color: var(--primary);
+        font-size: 1.5rem;
+        overflow: hidden;
+      }
+      .history-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .history-grid-name {
+        padding: 5px 7px;
+        font-size: 0.68rem;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: var(--text-sub);
+        border-top: 1px solid var(--glass-border);
+        text-align: center;
+      }
+      .history-grid-actions {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        display: flex;
+        gap: 3px;
+        opacity: 0;
+        transition: opacity 0.18s ease;
+        z-index: 2;
+      }
+      .history-grid-card:hover .history-grid-actions,
+      .history-grid-card.is-selected .history-grid-actions { opacity: 1; }
+      @media (max-width: 680px) { .history-grid-actions { opacity: 1; } }
+
+      .history-mini-btn {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.58rem;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+      .history-mini-btn:hover {
+        background: var(--primary);
+        border-color: var(--primary);
+        transform: scale(1.08);
+      }
+      .history-mini-btn.danger:hover {
+        background: #ef4444;
+        border-color: #ef4444;
+      }
+
+      /* 列表视图 */
+      .history-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .history-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--glass-border);
+        background: var(--glass-subtle);
+        transition: var(--transition);
+      }
+      .history-row:hover {
+        border-color: var(--primary-light);
+        background: var(--glass-surface);
+      }
+      .history-row.is-selected {
+        border-color: var(--primary);
+        background: var(--primary-surface);
+      }
+      .history-row-thumb {
+        width: 38px;
+        height: 38px;
+        border-radius: 9px;
+        flex-shrink: 0;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--glass-surface);
+        border: 1px solid var(--glass-border-ice);
+        color: var(--primary);
+        font-size: 1rem;
+        cursor: pointer;
+      }
+      .history-row-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .history-row-info { flex: 1; min-width: 0; }
+      .history-row-name {
+        font-size: 0.82rem;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .history-row-meta {
+        font-size: 0.67rem;
+        color: var(--text-muted);
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 2px;
+      }
+      .history-row-actions {
+        display: flex;
+        gap: 4px;
+        flex-shrink: 0;
+      }
+      .history-row-actions .mini-icon-btn {
+        width: 27px;
+        height: 27px;
+        font-size: 0.68rem;
+        border-radius: 7px;
+      }
+      @media (max-width: 680px) {
+        .history-row-actions { flex-wrap: wrap; max-width: 66px; justify-content: flex-end; }
+      }
+
+      .history-empty {
+        padding: 38px 16px;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        line-height: 1.5;
+      }
+      .history-empty i {
+        font-size: 1.8rem;
+        opacity: 0.4;
+      }
+
+      /* ===== 历史面板样式结束 ===== */
 
       .bottom-floating-dock {
         position: fixed;
@@ -1111,6 +1477,7 @@
         .quick-action-strip { grid-template-columns: repeat(2, 1fr); gap: 8px; }
         .storage-cards-grid { grid-template-columns: 1fr; }
         .bottom-floating-dock { width: calc(100% - 20px); }
+        .history-grid { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); }
       }
     </style>
   </head>
@@ -1491,25 +1858,6 @@
               <button class="folder-pill-btn" @click="cancelUploadFolderCreator">取消</button>
             </div>
 
-            <!-- 最近使用 -->
-            <div v-if="recentFolders.length">
-              <div class="folder-section-label">
-                <i class="fas fa-clock-rotate-left"></i>
-                <span>最近使用</span>
-              </div>
-              <div class="folder-chips-row">
-                <button
-                  class="format-chip-btn"
-                  v-for="p in recentFolders"
-                  :key="'recent-' + p"
-                  :class="{ active: p === folderPath }"
-                  @click="selectUploadFolder(p)"
-                >
-                  {{ p }}
-                </button>
-              </div>
-            </div>
-
             <!-- 真实目录结构树 -->
             <div class="folder-section-label">
               <i class="fas fa-sitemap"></i>
@@ -1592,20 +1940,164 @@
             </div>
           </div>
 
-          <!-- Drawer Tab 4: Local History Vault -->
+          <!-- ============================================================
+               Drawer Tab 4: Local History Vault（全面升级版）
+               ============================================================ -->
           <div v-if="activeDrawerTab === 'history'">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-              <span style="font-size: 0.86rem; font-weight: 700;">本地上传历史 ({{ uploadHistory.length }})</span>
-              <div style="display: flex; gap: 6px;">
-                <button class="action-pill-btn" style="padding: 4px 10px; font-size: 0.76rem;" @click="copySelectedHistoryLinks">复制全部</button>
-                <button class="action-pill-btn" style="padding: 4px 10px; font-size: 0.76rem;" @click="clearHistory">清空</button>
+            <!-- 顶部统计 -->
+            <div class="history-stats-bar">
+              <span class="history-stat-item">
+                <i class="fas fa-clock-rotate-left"></i>
+                <span>共 <strong>{{ historyStats.count }}</strong> 条</span>
+              </span>
+              <span class="history-stat-item">
+                <i class="fas fa-database"></i>
+                <span>累计 <strong>{{ formatSize(historyStats.totalSize) }}</strong></span>
+              </span>
+              <span class="history-stat-item">
+                <i class="fas fa-filter"></i>
+                <span>当前显示 <strong>{{ historySorted.length }}</strong> 条</span>
+              </span>
+            </div>
+
+            <!-- 搜索 / 排序 / 视图切换 -->
+            <div class="history-toolbar">
+              <div class="history-search-box">
+                <i class="fas fa-magnifying-glass"></i>
+                <input type="text" v-model="historySearch" placeholder="搜索文件名或链接..." />
+                <i class="fas fa-circle-xmark history-search-clear" v-if="historySearch" @click="historySearch = ''"></i>
+              </div>
+              <select class="history-sort-select" v-model="historySort">
+                <option value="time-desc">最新优先</option>
+                <option value="time-asc">最早优先</option>
+                <option value="name-asc">名称 A → Z</option>
+                <option value="size-desc">体积由大到小</option>
+              </select>
+              <div class="history-view-toggle">
+                <button :class="{ active: historyView === 'grid' }" @click="historyView = 'grid'" title="网格视图">
+                  <i class="fas fa-grip"></i>
+                </button>
+                <button :class="{ active: historyView === 'list' }" @click="historyView = 'list'" title="列表视图">
+                  <i class="fas fa-list"></i>
+                </button>
               </div>
             </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; max-height: 280px; overflow-y: auto;">
-              <div class="task-thumb-img" style="width: 100%; height: 80px; position: relative; cursor: pointer;" v-for="(item, hIdx) in uploadHistory" :key="hIdx" @click="openPreview(item)">
-                <img v-if="isImageFile(getDisplayName(item)) && !item._imgError" :src="getCleanFileUrl(item)" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;" @error="handleHistoryImgError($event, item)" />
-                <i v-else :class="getFileIcon(getDisplayName(item))"></i>
+
+            <!-- 类型筛选 -->
+            <div class="format-tabs-row">
+              <button
+                class="format-chip-btn"
+                v-for="tab in historyTypeTabs"
+                :key="tab.value"
+                :class="{ active: historyTypeFilter === tab.value }"
+                @click="historyTypeFilter = tab.value"
+              >
+                {{ tab.label }} ({{ historyTypeCounts[tab.value] }})
+              </button>
+            </div>
+
+            <!-- 批量操作栏 -->
+            <div class="history-batch-bar">
+              <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 700;">
+                <input type="checkbox" :checked="historyAllSelected" @change="toggleHistorySelectAll" style="accent-color: var(--primary); cursor: pointer;" />
+                <span>全选</span>
+              </label>
+              <span class="batch-info" :class="{ 'has-selection': historySelectedCount > 0 }">
+                {{ historySelectedCount > 0 ? `已选 ${historySelectedCount} 项` : '未选择' }}
+              </span>
+              <button class="action-pill-btn" style="padding: 4px 10px; font-size: 0.74rem;" @click="copyHistorySelected" :disabled="!historySelectedCount">
+                <i class="fas fa-copy"></i> 复制链接
+              </button>
+              <button class="action-pill-btn" style="padding: 4px 10px; font-size: 0.74rem;" @click="addHistorySelectedToResults" :disabled="!historySelectedCount">
+                <i class="fas fa-plus"></i> 加入结果
+              </button>
+              <button class="action-pill-btn" style="padding: 4px 10px; font-size: 0.74rem; color: #ef4444;" @click="deleteHistorySelected" :disabled="!historySelectedCount">
+                <i class="fas fa-trash"></i> 删除
+              </button>
+              <button class="action-pill-btn" style="padding: 4px 10px; font-size: 0.74rem;" @click="exportHistory" :disabled="!historySorted.length">
+                <i class="fas fa-file-export"></i> 导出
+              </button>
+              <button class="action-pill-btn" style="padding: 4px 10px; font-size: 0.74rem; color: #ef4444;" @click="clearHistory" :disabled="!uploadHistory.length">
+                <i class="fas fa-broom"></i> 清空
+              </button>
+            </div>
+
+            <!-- 历史内容区 -->
+            <div v-if="historySorted.length">
+              <div class="history-group" v-for="(group, gIdx) in historyGroups" :key="'group-' + gIdx">
+                <div class="history-group-label" v-if="group.label">
+                  <i class="fas fa-calendar-day"></i>
+                  <span>{{ group.label }}</span>
+                </div>
+
+                <!-- 网格视图 -->
+                <div class="history-grid" v-if="historyView === 'grid'">
+                  <div
+                    class="history-grid-card"
+                    v-for="item in group.items"
+                    :key="item.id"
+                    :class="{ 'is-selected': item.selected }"
+                    @click="historyPreview(item)"
+                  >
+                    <input type="checkbox" class="history-card-check" v-model="item.selected" @click.stop />
+                    <div class="history-thumb">
+                      <img
+                        v-if="isImageFile(getDisplayName(item)) && !item._imgError"
+                        :src="getCleanFileUrl(item)"
+                        @error="handleHistoryImgError($event, item)"
+                      />
+                      <i v-else :class="getFileIcon(getDisplayName(item))"></i>
+                    </div>
+                    <div class="history-grid-name" :title="getDisplayName(item)">{{ getDisplayName(item) }}</div>
+                    <div class="history-grid-actions">
+                      <button class="history-mini-btn" @click.stop="historyCopyLink(item)" title="复制直链"><i class="fas fa-copy"></i></button>
+                      <button class="history-mini-btn" @click.stop="historyDownload(item)" title="下载"><i class="fas fa-download"></i></button>
+                      <button class="history-mini-btn danger" @click.stop="historyDelete(item)" title="删除"><i class="fas fa-xmark"></i></button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 列表视图 -->
+                <div class="history-list" v-else>
+                  <div
+                    class="history-row"
+                    v-for="item in group.items"
+                    :key="item.id"
+                    :class="{ 'is-selected': item.selected }"
+                  >
+                    <input type="checkbox" v-model="item.selected" style="accent-color: var(--primary); cursor: pointer; flex-shrink: 0;" />
+                    <div class="history-row-thumb" @click="historyPreview(item)">
+                      <img
+                        v-if="isImageFile(getDisplayName(item)) && !item._imgError"
+                        :src="getCleanFileUrl(item)"
+                        @error="handleHistoryImgError($event, item)"
+                      />
+                      <i v-else :class="getFileIcon(getDisplayName(item))"></i>
+                    </div>
+                    <div class="history-row-info">
+                      <div class="history-row-name" :title="getDisplayName(item)">{{ getDisplayName(item) }}</div>
+                      <div class="history-row-meta">
+                        <span>{{ formatSize(item.size) }}</span>
+                        <span>{{ formatHistoryTime(item.uploadTime) }}</span>
+                        <span v-if="item.storageMode">{{ storageLabel(item.storageMode) }}</span>
+                        <span v-if="item.folderPath">/{{ item.folderPath }}</span>
+                      </div>
+                    </div>
+                    <div class="history-row-actions">
+                      <button class="mini-icon-btn" @click="historyCopyLink(item)" title="复制直链"><i class="fas fa-copy"></i></button>
+                      <button class="mini-icon-btn" @click="historyPreview(item)" title="预览"><i class="fas fa-eye"></i></button>
+                      <button class="mini-icon-btn" @click="historyDownload(item)" title="下载"><i class="fas fa-download"></i></button>
+                      <button class="mini-icon-btn danger" @click="historyDelete(item)" title="删除"><i class="fas fa-xmark"></i></button>
+                    </div>
+                  </div>
+                </div>
               </div>
+            </div>
+
+            <div class="history-empty" v-else>
+              <i class="fas fa-clock-rotate-left"></i>
+              <span v-if="uploadHistory.length">没有匹配的历史记录，试试调整搜索关键词或筛选条件</span>
+              <span v-else>暂无本地上传历史，上传文件后将自动记录在此</span>
             </div>
           </div>
 
@@ -1706,10 +2198,8 @@
               </span>
               <i class="fas folder-tree-icon" :class="hasChildren && isExpanded ? 'fa-folder-open' : 'fa-folder'"></i>
               <span class="folder-tree-name">{{ node.name }}</span>
-              <!-- 优化1：显示文件数量 -->
               <span class="folder-tree-count" v-if="node.fileCount > 0">{{ node.fileCount }} 文件</span>
-              
-              <!-- 优化2：操作按钮 -->
+
               <div class="folder-tree-actions">
                 <button class="folder-tree-action-btn" @click="onRename" title="重命名"><i class="fas fa-pen"></i></button>
                 <button class="folder-tree-action-btn danger" @click="onDelete" title="删除"><i class="fas fa-trash"></i></button>
@@ -1770,9 +2260,7 @@
           showUploadFolderCreator: false,
           newUploadFolderPath: "",
           uploadFolderCreating: false,
-          /* 目录记忆相关 */
           expandedFolders: {},
-          recentFolders: [],
           storageMode: "telegram",
           storageTarget: "Telegram 频道",
           r2Available: false,
@@ -1790,6 +2278,21 @@
             maxConcurrent: 3,
           },
           uploadLimits: {},
+
+          /* ===== 本地历史面板状态 ===== */
+          historySearch: "",
+          historySort: "time-desc",
+          historyView: "grid",
+          historyTypeFilter: "all",
+          historyMaxItems: 500,
+          historyTypeTabs: [
+            { value: "all", label: "全部" },
+            { value: "image", label: "图片" },
+            { value: "video", label: "视频" },
+            { value: "audio", label: "音频" },
+            { value: "doc", label: "文档" },
+            { value: "other", label: "其他" },
+          ],
         },
         computed: {
           selectedCount() {
@@ -1842,7 +2345,6 @@
                 }
                 parent = map[cur];
               });
-              // 关键：将后端返回的 fileCount 绑定到对应的树节点
               if (map[cur]) {
                 map[cur].fileCount = folder.fileCount || 0;
               }
@@ -1865,6 +2367,92 @@
                 ? Math.min(limit.maxBytes || Infinity, this.guestUploadConfig.maxFileSize)
                 : (limit.maxBytes || this.uploadConfig.maxSize);
             return this.formatSize(maxBytes);
+          },
+
+          /* ===== 本地历史计算属性 ===== */
+          historyStats() {
+            const list = this.uploadHistory || [];
+            const totalSize = list.reduce((sum, it) => sum + (Number(it.size) || 0), 0);
+            return { count: list.length, totalSize };
+          },
+          historyTypeCounts() {
+            const counts = { all: this.uploadHistory.length, image: 0, video: 0, audio: 0, doc: 0, other: 0 };
+            this.uploadHistory.forEach((it) => {
+              const cat = this.getFileCategory(this.getDisplayName(it));
+              if (counts[cat] === undefined) counts[cat] = 0;
+              counts[cat]++;
+            });
+            return counts;
+          },
+          historyFiltered() {
+            const kw = (this.historySearch || "").trim().toLowerCase();
+            let list = this.uploadHistory.slice();
+            if (kw) {
+              list = list.filter((it) => {
+                const name = String(this.getDisplayName(it) || "").toLowerCase();
+                const url = String(it.url || "").toLowerCase();
+                return name.includes(kw) || url.includes(kw);
+              });
+            }
+            if (this.historyTypeFilter !== "all") {
+              list = list.filter(
+                (it) => this.getFileCategory(this.getDisplayName(it)) === this.historyTypeFilter
+              );
+            }
+            return list;
+          },
+          historySorted() {
+            const arr = this.historyFiltered.slice();
+            switch (this.historySort) {
+              case "time-asc":
+                arr.sort((a, b) => (a.uploadTime || 0) - (b.uploadTime || 0));
+                break;
+              case "name-asc":
+                arr.sort((a, b) =>
+                  String(this.getDisplayName(a)).localeCompare(String(this.getDisplayName(b)), "zh-CN")
+                );
+                break;
+              case "size-desc":
+                arr.sort((a, b) => (b.size || 0) - (a.size || 0));
+                break;
+              case "time-desc":
+              default:
+                arr.sort((a, b) => (b.uploadTime || 0) - (a.uploadTime || 0));
+                break;
+            }
+            return arr;
+          },
+          historyGroups() {
+            const list = this.historySorted;
+            if (!this.historySort.startsWith("time")) {
+              return [{ label: "", items: list }];
+            }
+            const dayMs = 86400000;
+            const now = new Date();
+            const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const defs = [
+              { label: "今天", from: startOfToday, to: Infinity },
+              { label: "昨天", from: startOfToday - dayMs, to: startOfToday },
+              { label: "最近 7 天", from: startOfToday - 7 * dayMs, to: startOfToday - dayMs },
+              { label: "最近 30 天", from: startOfToday - 30 * dayMs, to: startOfToday - 7 * dayMs },
+              { label: "更早", from: 0, to: startOfToday - 30 * dayMs },
+            ];
+            const groups = [];
+            defs.forEach((def) => {
+              const items = list.filter((it) => {
+                const t = it.uploadTime || 0;
+                return t >= def.from && t < def.to;
+              });
+              if (items.length) groups.push({ label: def.label, items });
+            });
+            return groups;
+          },
+          historyAllSelected() {
+            const list = this.historySorted;
+            return list.length > 0 && list.every((it) => it.selected);
+          },
+          historySelectedCount() {
+            return this.historySorted.filter((it) => it.selected).length;
           },
         },
         methods: {
@@ -1943,12 +2531,6 @@
             }
             if (parts.length) this.persistExpanded();
           },
-          pushRecentFolder(path) {
-            if (!path) return;
-            const list = [path, ...this.recentFolders.filter((p) => p !== path)].slice(0, 6);
-            this.recentFolders = list;
-            try { localStorage.setItem("folderRecent", JSON.stringify(list)); } catch (e) {}
-          },
           folderPathUpTo(index) {
             return this.folderPathSegments.slice(0, index + 1).join("/");
           },
@@ -1970,7 +2552,6 @@
             this.folderPath = this.normalizeFolderPath(p);
             this.persistFolderPath();
             if (this.folderPath) {
-              this.pushRecentFolder(this.folderPath);
               this.autoExpandAncestors(this.folderPath);
             }
             if (!silent) {
@@ -2016,7 +2597,7 @@
             }
           },
 
-          /* ===== 优化2：目录重命名与删除操作 ===== */
+          /* ===== 目录重命名与删除操作 ===== */
           async handleRenameFolder(node) {
             const newPath = window.prompt(`重命名目录：\n"${node.path}"\n\n请输入新路径（包含完整路径）：`, node.path);
             if (newPath === null) return;
@@ -2037,8 +2618,7 @@
               if (!res.ok || !data.success) throw new Error(data.error || "重命名失败");
 
               this.showToast(`已重命名：${targetPath}`, "success");
-              
-              // 如果当前路径在被重命名的目录下，自动更新当前路径
+
               if (this.folderPath === node.path || this.folderPath.startsWith(node.path + "/")) {
                 const suffix = this.folderPath.slice(node.path.length);
                 this.selectUploadFolder(targetPath + suffix, true);
@@ -2061,8 +2641,7 @@
               if (!res.ok || !data.success) throw new Error(data.error || "删除失败");
 
               this.showToast(`已删除目录：${node.path}`, "success");
-              
-              // 如果当前路径被删除了，重置到根目录
+
               if (this.folderPath === node.path || this.folderPath.startsWith(node.path + "/")) {
                 this.selectUploadFolder("", true);
               }
@@ -2094,7 +2673,7 @@
             }
           },
 
-          /* ===== 原有功能保持不变 ===== */
+          /* ===== 原有上传功能 ===== */
           triggerUpload() {
             this.$refs.fileInput.click();
           },
@@ -2191,7 +2770,6 @@
             this.storageTarget = labels[mode] || "Telegram 频道";
             try { localStorage.setItem("storageMode", mode); } catch (e) {}
 
-            // 优化：切换存储节点时，加载该节点记忆的目录路径
             this.loadFolderPathForMode(mode);
 
             if (!silent) {
@@ -2395,39 +2973,217 @@
               a.click();
             }
           },
-          addToHistory(file) {
-            if (!this.uploadHistory.some((h) => h.url === file.url)) {
-              this.uploadHistory.unshift({ ...file, selected: false });
-              try { localStorage.setItem("uploadHistory", JSON.stringify(this.uploadHistory)); } catch (e) {}
+
+          /* =========================================================
+             ===== 本地历史：核心方法（全面升级） =====
+             ========================================================= */
+          persistHistory() {
+            try {
+              const serialized = this.uploadHistory.map((it) => ({
+                id: it.id,
+                name: it.name,
+                fileName: it.fileName,
+                url: it.url,
+                size: it.size,
+                storageMode: it.storageMode,
+                folderPath: it.folderPath,
+                uploadTime: it.uploadTime,
+              }));
+              localStorage.setItem("uploadHistory", JSON.stringify(serialized));
+            } catch (e) {
+              // 存储空间不足时自动裁剪一半后重试
+              try {
+                this.uploadHistory = this.uploadHistory.slice(
+                  0,
+                  Math.max(50, Math.floor(this.uploadHistory.length / 2))
+                );
+                localStorage.setItem("uploadHistory", JSON.stringify(this.uploadHistory));
+              } catch (_) {}
             }
           },
+          loadHistory() {
+            try {
+              const raw = localStorage.getItem("uploadHistory");
+              if (!raw) return;
+              const arr = JSON.parse(raw);
+              if (!Array.isArray(arr)) return;
+              this.uploadHistory = arr.map((it, i) => ({
+                id: it.id || `h_legacy_${i}_${Math.random().toString(36).slice(2, 6)}`,
+                name: it.name || "",
+                fileName: it.fileName || it.name || "未命名文件",
+                url: it.url || it.path || "",
+                size: Number(it.size) || 0,
+                storageMode: it.storageMode || "",
+                folderPath: it.folderPath || "",
+                uploadTime: Number(it.uploadTime || it.time) || 0,
+                selected: false,
+              }));
+            } catch (e) {
+              this.uploadHistory = [];
+            }
+          },
+          addToHistory(file) {
+            const url = this.getCleanFileUrl(file);
+            const entry = {
+              id: `h_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`,
+              name: file.name || "",
+              fileName: file.fileName || file.name || "未命名文件",
+              url: file.url || file.path || "",
+              size: Number(file.size) || 0,
+              storageMode: this.storageMode,
+              folderPath: this.folderPath || "",
+              uploadTime: Date.now(),
+              selected: false,
+            };
+            // 去重：同一地址只保留最新一条
+            const dupIdx = this.uploadHistory.findIndex(
+              (it) => this.getCleanFileUrl(it) === url
+            );
+            if (dupIdx > -1) this.uploadHistory.splice(dupIdx, 1);
+
+            this.uploadHistory.unshift(entry);
+            if (this.uploadHistory.length > this.historyMaxItems) {
+              this.uploadHistory = this.uploadHistory.slice(0, this.historyMaxItems);
+            }
+            this.persistHistory();
+          },
           clearHistory() {
+            if (!this.uploadHistory.length) return;
+            if (!window.confirm(`确定清空全部 ${this.uploadHistory.length} 条本地历史吗？\n\n此操作不可撤销。`)) return;
             this.uploadHistory = [];
-            try { localStorage.setItem("uploadHistory", "[]"); } catch (e) {}
+            try { localStorage.removeItem("uploadHistory"); } catch (e) {}
             this.showToast("本地历史已清空", "success");
           },
-          copySelectedHistoryLinks() {
-            const links = this.uploadHistory.map((f) => this.formatLink(f)).join("\n");
-            this.copyToClipboard(links);
-            this.showToast("已复制全部历史直链", "success");
+          historyDelete(item) {
+            const idx = this.uploadHistory.findIndex((it) => it.id === item.id);
+            if (idx > -1) this.uploadHistory.splice(idx, 1);
+            this.persistHistory();
+            this.showToast("已删除该历史记录");
+          },
+          deleteHistorySelected() {
+            const list = this.historySorted.filter((it) => it.selected);
+            if (!list.length) return;
+            if (!window.confirm(`确定删除选中的 ${list.length} 条历史记录吗？`)) return;
+            const ids = new Set(list.map((it) => it.id));
+            this.uploadHistory = this.uploadHistory.filter((it) => !ids.has(it.id));
+            this.persistHistory();
+            this.showToast(`已删除 ${list.length} 条记录`, "success");
+          },
+          toggleHistorySelectAll() {
+            const target = !this.historyAllSelected;
+            this.historySorted.forEach((it) => {
+              it.selected = target;
+            });
+          },
+          historyCopyLink(item) {
+            this.copyToClipboard(this.formatLink(item));
+            this.showToast("已复制直链", "success");
+          },
+          copyHistorySelected() {
+            const list = this.historySorted.filter((it) => it.selected);
+            if (!list.length) return;
+            const text = list.map((it) => this.formatLink(it)).join("\n");
+            this.copyToClipboard(text);
+            this.showToast(`已复制 ${list.length} 条链接`, "success");
+          },
+          historyPreview(item) {
+            this.openPreview(item);
+          },
+          historyDownload(item) {
+            const a = document.createElement("a");
+            a.href = this.getCleanFileUrl(item);
+            a.download = this.getDisplayName(item);
+            a.target = "_blank";
+            a.rel = "noopener";
+            a.click();
+          },
+          addHistorySelectedToResults() {
+            const list = this.historySorted.filter((it) => it.selected);
+            if (!list.length) return;
+            let added = 0;
+            list.forEach((it) => {
+              const url = this.getCleanFileUrl(it);
+              if (this.uploadedFiles.some((f) => this.getCleanFileUrl(f) === url)) return;
+              this.uploadedFiles.unshift({
+                name: it.name,
+                fileName: it.fileName,
+                url: it.url,
+                size: it.size,
+                selected: false,
+              });
+              added++;
+            });
+            if (added) {
+              this.showToast(`已加入 ${added} 条到交付结果`, "success");
+            } else {
+              this.showToast("所选记录已存在于结果列表中");
+            }
+          },
+          exportHistory() {
+            const list = this.historySorted;
+            if (!list.length) return;
+            const lines = list.map(
+              (it) =>
+                `${this.getDisplayName(it)}\t${this.getCleanFileUrl(it)}\t${this.formatSize(it.size)}\t${this.formatHistoryTime(it.uploadTime)}`
+            );
+            const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = `upload-history-${new Date().toISOString().slice(0, 10)}.txt`;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(a.href), 1200);
+            this.showToast(`已导出 ${list.length} 条记录`, "success");
           },
           handleHistoryImgError(e, item) {
             item._imgError = true;
             this.$forceUpdate();
           },
+          getFileCategory(filename) {
+            const ext = String(filename || "").split(".").pop().toLowerCase();
+            if (["jpg", "jpeg", "png", "webp", "gif", "svg", "bmp", "avif", "ico", "tiff"].includes(ext)) return "image";
+            if (["mp4", "webm", "mkv", "avi", "mov", "m4v", "flv", "wmv"].includes(ext)) return "video";
+            if (["mp3", "wav", "flac", "aac", "ogg", "m4a", "opus"].includes(ext)) return "audio";
+            if (["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "md", "csv", "json", "xml", "html", "zip", "rar", "7z", "tar", "gz"].includes(ext)) return "doc";
+            return "other";
+          },
+          formatHistoryTime(ts) {
+            if (!ts) return "未知时间";
+            const d = new Date(ts);
+            if (isNaN(d.getTime())) return "未知时间";
+            const now = new Date();
+            const pad = (n) => String(n).padStart(2, "0");
+            const hm = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+            if (d.toDateString() === now.toDateString()) return `今天 ${hm}`;
+            const y = new Date(now.getTime() - 86400000);
+            if (d.toDateString() === y.toDateString()) return `昨天 ${hm}`;
+            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${hm}`;
+          },
+          storageLabel(mode) {
+            const map = {
+              telegram: "Telegram",
+              r2: "R2",
+              s3: "S3",
+              discord: "Discord",
+              huggingface: "HuggingFace",
+              github: "GitHub",
+            };
+            return map[mode] || mode || "";
+          },
+          /* ===== 本地历史核心方法结束 ===== */
+
           getDisplayName(item) { return item.fileName || item.name || "未命名文件"; },
           getCleanFileUrl(item) {
             const raw = item.url || item.path || "";
             if (raw.startsWith("http")) return raw;
             return `${this.baseURL}${raw}`;
           },
-          isImageFile(filename) { return /\.(jpe?g|png|webp|gif|svg|bmp)$/i.test(filename || ""); },
+          isImageFile(filename) { return /\.(jpe?g|png|webp|gif|svg|bmp|avif|ico)$/i.test(filename || ""); },
           getFileIcon(filename) {
             const ext = (filename || "").split(".").pop().toLowerCase();
-            if (["mp4", "mkv", "avi", "mov"].includes(ext)) return "fas fa-video";
-            if (["mp3", "wav", "flac"].includes(ext)) return "fas fa-music";
-            if (["zip", "rar", "7z", "tar"].includes(ext)) return "fas fa-file-zipper";
-            if (["pdf", "doc", "docx", "txt"].includes(ext)) return "fas fa-file-lines";
+            if (["mp4", "mkv", "avi", "mov", "webm"].includes(ext)) return "fas fa-video";
+            if (["mp3", "wav", "flac", "aac", "ogg", "m4a"].includes(ext)) return "fas fa-music";
+            if (["zip", "rar", "7z", "tar", "gz"].includes(ext)) return "fas fa-file-zipper";
+            if (["pdf", "doc", "docx", "txt", "md"].includes(ext)) return "fas fa-file-lines";
             return "fas fa-file";
           },
           getStatusText(status) {
@@ -2512,15 +3268,12 @@
             const th = localStorage.getItem("theme") || "light";
             this.currentTheme = th;
             document.documentElement.setAttribute("data-theme", th);
-            
-            // 读取上次记忆的展开状态和最近目录
+
             const ex = localStorage.getItem("folderTreeExpanded");
             if (ex) this.expandedFolders = JSON.parse(ex) || {};
-            const rc = localStorage.getItem("folderRecent");
-            if (rc) this.recentFolders = JSON.parse(rc) || [];
 
-            const hist = localStorage.getItem("uploadHistory");
-            if (hist) this.uploadHistory = JSON.parse(hist);
+            // 全面升级后的本地历史加载
+            this.loadHistory();
           } catch (e) {}
 
           await this.checkAuth();
