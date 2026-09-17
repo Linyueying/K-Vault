@@ -12,6 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css" />
     <style>
+      [v-cloak] {
+        display: none !important;
+      }
+
       :root {
         --primary: #0284c7;
         --primary-rgb: 2, 132, 199;
@@ -349,7 +353,6 @@
         box-shadow: 0 6px 16px rgba(56, 189, 248, 0.2);
       }
 
-      /* COMPACT STREAMLINED URL TRANSFER PILL */
       .url-pill-bar {
         display: flex;
         align-items: center;
@@ -406,7 +409,6 @@
         cursor: not-allowed;
       }
 
-      /* COMPACT STREAMLINED FOLDER INPUT BAR */
       .folder-pill-bar {
         display: flex;
         align-items: center;
@@ -459,7 +461,7 @@
         box-shadow: 0 5px 14px rgba(2, 132, 199, 0.38);
       }
 
-      /* ===== 目录树相关样式（新增） ===== */
+      /* ===== 目录树相关样式 ===== */
       .folder-current-bar {
         display: flex;
         align-items: center;
@@ -604,6 +606,43 @@
         flex-shrink: 0;
         font-weight: 600;
       }
+      .folder-tree-actions {
+        display: flex;
+        gap: 4px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+      .folder-tree-row:hover .folder-tree-actions,
+      .folder-tree-row.active .folder-tree-actions {
+        opacity: 1;
+      }
+      @media (max-width: 680px) {
+        .folder-tree-actions { opacity: 1; } /* 移动端始终显示操作按钮 */
+      }
+      .folder-tree-action-btn {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        border: 1px solid var(--glass-border-ice);
+        background: var(--glass-surface);
+        color: var(--text-muted);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 0.6rem;
+        transition: var(--transition);
+      }
+      .folder-tree-action-btn:hover {
+        background: var(--primary);
+        color: #fff;
+        border-color: var(--primary);
+      }
+      .folder-tree-action-btn.danger:hover {
+        background: #ef4444;
+        border-color: #ef4444;
+      }
+
       .folder-tree-empty {
         padding: 22px 12px;
         text-align: center;
@@ -786,7 +825,6 @@
         margin-top: 10px;
       }
 
-      /* BALANCED 4-ITEM FLOATING DOCK (CLEAN, NO OVERLAYS) */
       .bottom-floating-dock {
         position: fixed;
         bottom: max(16px, env(safe-area-inset-bottom, 16px));
@@ -884,7 +922,6 @@
         margin: -4px auto 16px;
       }
 
-      /* Horizontal scrolling drawer tab bar */
       .drawer-tabs-nav {
         display: flex !important;
         flex-direction: row !important;
@@ -1150,7 +1187,6 @@
             <i class="fas fa-folder-open"></i>
             <span>选择文件</span>
           </button>
-          <!-- Changed to 图片浏览 linking directly to gallery -->
           <a href="./gallery.html" class="action-pill-btn">
             <i class="fas fa-images"></i>
             <span>图片浏览</span>
@@ -1298,27 +1334,20 @@
         </section>
       </main>
 
-      <!-- UNIFIED 4-ITEM FLOATING BOTTOM DOCK (No overlapping orbs) -->
+      <!-- UNIFIED 4-ITEM FLOATING BOTTOM DOCK -->
       <nav class="bottom-floating-dock">
-        <!-- 1. 主控台/上传 -->
         <button class="dock-pill-btn" :class="{ active: !showDrawer }" @click="showDrawer = false">
           <i class="fas fa-cloud-arrow-up"></i>
           <span>主控台</span>
         </button>
-
-        <!-- 2. 存储节点 -->
         <button class="dock-pill-btn" @click="openDrawer('storage')" :class="{ active: showDrawer && activeDrawerTab === 'storage' }">
           <i :class="getStorageIcon(storageMode)"></i>
           <span>存储节点</span>
         </button>
-
-        <!-- 3. 上传目录 -->
         <button class="dock-pill-btn" @click="openDrawer('folder')" :class="{ active: showDrawer && activeDrawerTab === 'folder' }">
           <i class="fas fa-folder-tree"></i>
           <span>目录路径</span>
         </button>
-
-        <!-- 4. 更多拓展 -->
         <button class="dock-pill-btn" @click="openMoreDrawer" :class="{ active: showDrawer && isMoreTabActive }">
           <i class="fas fa-layer-group"></i>
           <span>更多功能</span>
@@ -1362,12 +1391,7 @@
             </div>
 
             <div class="storage-cards-grid">
-              <!-- Telegram Node -->
-              <div
-                class="storage-node-card"
-                :class="{ active: storageMode === 'telegram' }"
-                @click="setStorageMode('telegram')"
-              >
+              <div class="storage-node-card" :class="{ active: storageMode === 'telegram' }" @click="setStorageMode('telegram')">
                 <i class="fab fa-telegram" style="font-size: 1.7rem; color: #0284c7;"></i>
                 <div>
                   <div class="storage-node-title">Telegram 频道</div>
@@ -1375,14 +1399,7 @@
                 </div>
                 <div class="storage-check-circle" v-if="storageMode === 'telegram'"><i class="fas fa-check"></i></div>
               </div>
-
-              <!-- Cloudflare R2 Node -->
-              <div
-                class="storage-node-card"
-                v-if="!isGuest"
-                :class="{ active: storageMode === 'r2', disabled: !isStorageAvailable('r2') }"
-                @click="setStorageMode('r2')"
-              >
+              <div class="storage-node-card" v-if="!isGuest" :class="{ active: storageMode === 'r2', disabled: !isStorageAvailable('r2') }" @click="setStorageMode('r2')">
                 <i class="fas fa-cloud" style="font-size: 1.7rem; color: #f6821f;"></i>
                 <div>
                   <div class="storage-node-title">Cloudflare R2</div>
@@ -1391,14 +1408,7 @@
                 </div>
                 <div class="storage-check-circle" v-if="storageMode === 'r2'"><i class="fas fa-check"></i></div>
               </div>
-
-              <!-- Amazon S3 Node -->
-              <div
-                class="storage-node-card"
-                v-if="!isGuest"
-                :class="{ active: storageMode === 's3', disabled: !isStorageAvailable('s3') }"
-                @click="setStorageMode('s3')"
-              >
+              <div class="storage-node-card" v-if="!isGuest" :class="{ active: storageMode === 's3', disabled: !isStorageAvailable('s3') }" @click="setStorageMode('s3')">
                 <i class="fas fa-database" style="font-size: 1.7rem; color: #10b981;"></i>
                 <div>
                   <div class="storage-node-title">Amazon S3</div>
@@ -1407,14 +1417,7 @@
                 </div>
                 <div class="storage-check-circle" v-if="storageMode === 's3'"><i class="fas fa-check"></i></div>
               </div>
-
-              <!-- Discord Node -->
-              <div
-                class="storage-node-card"
-                v-if="!isGuest"
-                :class="{ active: storageMode === 'discord', disabled: !isStorageAvailable('discord') }"
-                @click="setStorageMode('discord')"
-              >
+              <div class="storage-node-card" v-if="!isGuest" :class="{ active: storageMode === 'discord', disabled: !isStorageAvailable('discord') }" @click="setStorageMode('discord')">
                 <i class="fab fa-discord" style="font-size: 1.7rem; color: #6366f1;"></i>
                 <div>
                   <div class="storage-node-title">Discord 频道</div>
@@ -1423,14 +1426,7 @@
                 </div>
                 <div class="storage-check-circle" v-if="storageMode === 'discord'"><i class="fas fa-check"></i></div>
               </div>
-
-              <!-- HuggingFace Node -->
-              <div
-                class="storage-node-card"
-                v-if="!isGuest"
-                :class="{ active: storageMode === 'huggingface', disabled: !isStorageAvailable('huggingface') }"
-                @click="setStorageMode('huggingface')"
-              >
+              <div class="storage-node-card" v-if="!isGuest" :class="{ active: storageMode === 'huggingface', disabled: !isStorageAvailable('huggingface') }" @click="setStorageMode('huggingface')">
                 <i class="fas fa-robot" style="font-size: 1.7rem; color: #ec4899;"></i>
                 <div>
                   <div class="storage-node-title">HuggingFace</div>
@@ -1439,14 +1435,7 @@
                 </div>
                 <div class="storage-check-circle" v-if="storageMode === 'huggingface'"><i class="fas fa-check"></i></div>
               </div>
-
-              <!-- GitHub Node -->
-              <div
-                class="storage-node-card"
-                v-if="!isGuest"
-                :class="{ active: storageMode === 'github', disabled: !isStorageAvailable('github') }"
-                @click="setStorageMode('github')"
-              >
+              <div class="storage-node-card" v-if="!isGuest" :class="{ active: storageMode === 'github', disabled: !isStorageAvailable('github') }" @click="setStorageMode('github')">
                 <i class="fab fa-github" style="font-size: 1.7rem; color: #334155;"></i>
                 <div>
                   <div class="storage-node-title">GitHub Releases</div>
@@ -1458,9 +1447,8 @@
             </div>
           </div>
 
-          <!-- ================= Drawer Tab 2: Target Upload Folder (Real Directory Tree + Memory) ================= -->
+          <!-- ================= Drawer Tab 2: Target Upload Folder ================= -->
           <div v-if="activeDrawerTab === 'folder'">
-            <!-- 当前路径面包屑 -->
             <div class="folder-current-bar">
               <div class="folder-breadcrumb">
                 <span class="folder-crumb" @click="selectUploadFolder('')">
@@ -1477,7 +1465,6 @@
               </button>
             </div>
 
-            <!-- 手动路径输入 -->
             <div class="folder-pill-bar">
               <i class="fas fa-folder-open" style="color: var(--primary); font-size: 0.9rem;"></i>
               <input
@@ -1491,7 +1478,6 @@
               <button class="folder-pill-btn primary" @click="openUploadFolderCreator" :disabled="isGuest">新建</button>
             </div>
 
-            <!-- New Folder Creator Pill Bar -->
             <div class="folder-pill-bar" v-if="showUploadFolderCreator">
               <i class="fas fa-folder-plus" style="color: var(--primary); font-size: 0.9rem;"></i>
               <input
@@ -1505,7 +1491,7 @@
               <button class="folder-pill-btn" @click="cancelUploadFolderCreator">取消</button>
             </div>
 
-            <!-- 最近使用（记忆） -->
+            <!-- 最近使用 -->
             <div v-if="recentFolders.length">
               <div class="folder-section-label">
                 <i class="fas fa-clock-rotate-left"></i>
@@ -1532,7 +1518,6 @@
             </div>
 
             <div class="folder-tree-panel">
-              <!-- 根节点 -->
               <div
                 class="folder-tree-row"
                 :class="{ active: !folderPath }"
@@ -1544,7 +1529,7 @@
                 <span class="folder-tree-name">根目录</span>
               </div>
 
-              <!-- 递归子节点 -->
+              <!-- 递归子节点组件 -->
               <folder-node
                 v-for="node in uploadFolderTree.children"
                 :key="node.path"
@@ -1554,6 +1539,8 @@
                 :expanded="expandedFolders"
                 @select="selectUploadFolder"
                 @toggle="toggleFolderExpand"
+                @rename="handleRenameFolder"
+                @delete="handleDeleteFolder"
               ></folder-node>
 
               <div class="folder-tree-empty" v-if="uploadFoldersLoading && !uploadFolderTree.children.length">
@@ -1574,20 +1561,13 @@
                 <div style="font-weight: 700;">智能图像压缩转换</div>
                 <div style="font-size: 0.78rem; color: var(--text-muted);">减少文件体积，加快直链与多端加载速度</div>
               </div>
-              <input
-                type="checkbox"
-                v-model="imageCompress.enabled"
-                @change="handleImageCompressToggle"
-                style="width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer;"
-              />
+              <input type="checkbox" v-model="imageCompress.enabled" @change="handleImageCompressToggle" style="width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer;" />
             </div>
-
             <div style="display: flex; gap: 8px; margin-bottom: 14px;">
               <button class="format-chip-btn" :class="{ active: imageUploadDecision === 'original' }" @click="setImageUploadDecision('original')">原图上传</button>
               <button class="format-chip-btn" :class="{ active: imageUploadDecision === 'optimized' }" @click="setImageUploadDecision('optimized')">自动压缩转换</button>
               <button class="format-chip-btn" :class="{ active: imageUploadDecision === 'ask' }" @click="setImageUploadDecision('ask')">上传前询问</button>
             </div>
-
             <div v-if="imageCompressPanelExpanded" style="display: flex; flex-direction: column; gap: 14px;">
               <div style="display: flex; gap: 8px;">
                 <button
@@ -1601,27 +1581,12 @@
                   {{ fmt.label }}
                 </button>
               </div>
-
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-size: 0.85rem; font-weight: 600;">压缩质量：{{ imageCompress.quality }}%</span>
-                <input
-                  type="range"
-                  min="30"
-                  max="95"
-                  step="1"
-                  v-model.number="imageCompress.quality"
-                  @change="saveImageCompressSettings"
-                  style="width: 150px; accent-color: var(--primary);"
-                />
+                <input type="range" min="30" max="95" step="1" v-model.number="imageCompress.quality" @change="saveImageCompressSettings" style="width: 150px; accent-color: var(--primary);" />
               </div>
-
               <label style="display: flex; align-items: center; gap: 8px; font-size: 0.84rem; cursor: pointer;">
-                <input
-                  type="checkbox"
-                  v-model="imageCompress.keepOriginalWhenLarger"
-                  @change="saveImageCompressSettings"
-                  style="accent-color: var(--primary);"
-                />
+                <input type="checkbox" v-model="imageCompress.keepOriginalWhenLarger" @change="saveImageCompressSettings" style="accent-color: var(--primary);" />
                 <span>压缩后体积更大时自动保留原图</span>
               </label>
             </div>
@@ -1636,15 +1601,8 @@
                 <button class="action-pill-btn" style="padding: 4px 10px; font-size: 0.76rem;" @click="clearHistory">清空</button>
               </div>
             </div>
-
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; max-height: 280px; overflow-y: auto;">
-              <div
-                class="task-thumb-img"
-                style="width: 100%; height: 80px; position: relative; cursor: pointer;"
-                v-for="(item, hIdx) in uploadHistory"
-                :key="hIdx"
-                @click="openPreview(item)"
-              >
+              <div class="task-thumb-img" style="width: 100%; height: 80px; position: relative; cursor: pointer;" v-for="(item, hIdx) in uploadHistory" :key="hIdx" @click="openPreview(item)">
                 <img v-if="isImageFile(getDisplayName(item)) && !item._imgError" :src="getCleanFileUrl(item)" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;" @error="handleHistoryImgError($event, item)" />
                 <i v-else :class="getFileIcon(getDisplayName(item))"></i>
               </div>
@@ -1654,26 +1612,20 @@
           <!-- Drawer Tab 5: System Navigation & Account Links -->
           <div v-if="activeDrawerTab === 'menu'" style="display: flex; flex-direction: column; gap: 10px;">
             <a href="./gallery.html" v-if="!isGuest" class="action-pill-btn" style="justify-content: flex-start;">
-              <i class="fas fa-images"></i>
-              <span>图片画廊浏览</span>
+              <i class="fas fa-images"></i><span>图片画廊浏览</span>
             </a>
             <a href="./admin.html" v-if="!isGuest" class="action-pill-btn" style="justify-content: flex-start;">
-              <i class="fas fa-sliders"></i>
-              <span>管理后台</span>
+              <i class="fas fa-sliders"></i><span>管理后台</span>
             </a>
             <a href="./webdav.html" v-if="!isGuest" class="action-pill-btn" style="justify-content: flex-start;">
-              <i class="fas fa-hard-drive"></i>
-              <span>WebDAV 服务</span>
+              <i class="fas fa-hard-drive"></i><span>WebDAV 服务</span>
             </a>
-
             <button class="action-pill-btn" style="justify-content: flex-start;" @click="toggleLiquidTheme">
               <i :class="currentTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon'"></i>
               <span>切换外观主题 ({{ currentTheme === 'dark' ? '深色' : '浅蓝' }})</span>
             </button>
-
             <button v-if="isAuthenticated" class="action-pill-btn" style="justify-content: flex-start; color: #ef4444;" @click="handleLogout">
-              <i class="fas fa-arrow-right-from-bracket"></i>
-              <span>退出登录</span>
+              <i class="fas fa-arrow-right-from-bracket"></i><span>退出登录</span>
             </button>
           </div>
         </div>
@@ -1701,11 +1653,12 @@
       </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+    <!-- 更换为国内加速 CDN，解决部分网络无法加载问题 -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.14/vue.min.js"></script>
     <script>
       const LOCAL_PREVIEW_PAGE = "/preview.html";
 
-      /* ===== 递归目录树节点组件（新增，仅服务于目录功能） ===== */
+      /* ===== 递归目录树节点组件（集成重命名/删除及文件数显示） ===== */
       Vue.component("folder-node", {
         name: "folder-node",
         props: {
@@ -1731,6 +1684,14 @@
             if (!this.hasChildren) return;
             this.$emit("toggle", this.node.path);
           },
+          onRename(e) {
+            e.stopPropagation();
+            this.$emit("rename", this.node);
+          },
+          onDelete(e) {
+            e.stopPropagation();
+            this.$emit("delete", this.node);
+          }
         },
         template: `
           <div class="folder-tree-branch">
@@ -1745,7 +1706,14 @@
               </span>
               <i class="fas folder-tree-icon" :class="hasChildren && isExpanded ? 'fa-folder-open' : 'fa-folder'"></i>
               <span class="folder-tree-name">{{ node.name }}</span>
-              <span class="folder-tree-count" v-if="hasChildren">{{ node.children.length }}</span>
+              <!-- 优化1：显示文件数量 -->
+              <span class="folder-tree-count" v-if="node.fileCount > 0">{{ node.fileCount }} 文件</span>
+              
+              <!-- 优化2：操作按钮 -->
+              <div class="folder-tree-actions">
+                <button class="folder-tree-action-btn" @click="onRename" title="重命名"><i class="fas fa-pen"></i></button>
+                <button class="folder-tree-action-btn danger" @click="onDelete" title="删除"><i class="fas fa-trash"></i></button>
+              </div>
             </div>
             <div class="folder-tree-children" v-if="hasChildren && isExpanded">
               <folder-node
@@ -1757,6 +1725,8 @@
                 :expanded="expanded"
                 @select="$emit('select', $event)"
                 @toggle="$emit('toggle', $event)"
+                @rename="$emit('rename', $event)"
+                @delete="$emit('delete', $event)"
               ></folder-node>
             </div>
           </div>
@@ -1800,7 +1770,7 @@
           showUploadFolderCreator: false,
           newUploadFolderPath: "",
           uploadFolderCreating: false,
-          /* ===== 目录记忆相关（新增） ===== */
+          /* 目录记忆相关 */
           expandedFolders: {},
           recentFolders: [],
           storageMode: "telegram",
@@ -1856,7 +1826,6 @@
             });
             return out;
           },
-          /* ===== 真实目录树（新增）：由扁平路径列表构建层级结构 ===== */
           uploadFolderTree() {
             const root = { name: "", path: "", children: [] };
             const map = { "": root };
@@ -1868,11 +1837,15 @@
               parts.forEach((part) => {
                 cur = cur ? `${cur}/${part}` : part;
                 if (!map[cur]) {
-                  map[cur] = { name: part, path: cur, children: [] };
+                  map[cur] = { name: part, path: cur, children: [], fileCount: 0 };
                   parent.children.push(map[cur]);
                 }
                 parent = map[cur];
               });
+              // 关键：将后端返回的 fileCount 绑定到对应的树节点
+              if (map[cur]) {
+                map[cur].fileCount = folder.fileCount || 0;
+              }
             });
 
             const sortRec = (node) => {
@@ -1882,7 +1855,6 @@
             sortRec(root);
             return root;
           },
-          /* 当前路径的分段，用于面包屑 */
           folderPathSegments() {
             return this.folderPath.split("/").filter(Boolean);
           },
@@ -1900,12 +1872,10 @@
             this.activeDrawerTab = tab;
             this.showDrawer = true;
           },
-
           openMoreDrawer() {
             this.activeDrawerTab = this.lastMoreTab || "compress";
             this.showDrawer = true;
           },
-
           switchDrawerTab(tab) {
             this.activeDrawerTab = tab;
             if (["compress", "history", "menu"].includes(tab)) {
@@ -1915,7 +1885,6 @@
               this.fetchUploadFolders();
             }
           },
-
           getStorageIcon(mode) {
             const map = {
               telegram: "fab fa-telegram",
@@ -1927,7 +1896,6 @@
             };
             return map[mode] || "fas fa-server";
           },
-
           isStorageAvailable(mode) {
             if (mode === "telegram") return true;
             if (mode === "r2") return !!this.r2Available;
@@ -1937,28 +1905,20 @@
             if (mode === "github") return !!this.githubAvailable;
             return false;
           },
-
           toggleLiquidTheme() {
             this.currentTheme = this.currentTheme === "dark" ? "light" : "dark";
             document.documentElement.setAttribute("data-theme", this.currentTheme);
             try { localStorage.setItem("theme", this.currentTheme); } catch (e) {}
           },
-
-          /* ============ 目录功能核心方法（已优化） ============ */
-
           normalizeFolderPath(val) {
             return String(val || "").replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
           },
-
-          /* 持久化当前目录：同时写入全局键与「按存储节点」的键，实现分节点记忆 */
           persistFolderPath() {
             try {
               localStorage.setItem("uploadFolderPath", this.folderPath);
               localStorage.setItem(`uploadFolderPath:${this.storageMode}`, this.folderPath);
             } catch (e) {}
           },
-
-          /* 读取某个存储节点记忆的目录 */
           loadFolderPathForMode(mode) {
             let stored = "";
             try {
@@ -1967,19 +1927,13 @@
             this.folderPath = this.normalizeFolderPath(stored);
             if (this.folderPath) this.autoExpandAncestors(this.folderPath);
           },
-
-          /* 展开状态持久化 */
           persistExpanded() {
             try { localStorage.setItem("folderTreeExpanded", JSON.stringify(this.expandedFolders)); } catch (e) {}
           },
-
-          /* 展开/收起某个目录 */
           toggleFolderExpand(path) {
             this.$set(this.expandedFolders, path, !this.expandedFolders[path]);
             this.persistExpanded();
           },
-
-          /* 自动展开某路径的所有上级目录，保证目标可见 */
           autoExpandAncestors(path) {
             const parts = this.normalizeFolderPath(path).split("/").filter(Boolean);
             let cur = "";
@@ -1989,37 +1943,29 @@
             }
             if (parts.length) this.persistExpanded();
           },
-
-          /* 记录最近使用的目录 */
           pushRecentFolder(path) {
             if (!path) return;
             const list = [path, ...this.recentFolders.filter((p) => p !== path)].slice(0, 6);
             this.recentFolders = list;
             try { localStorage.setItem("folderRecent", JSON.stringify(list)); } catch (e) {}
           },
-
-          /* 面包屑点击：跳转到某一级 */
           folderPathUpTo(index) {
             return this.folderPathSegments.slice(0, index + 1).join("/");
           },
-
           handleFolderPathInput() {
             this.folderPath = this.normalizeFolderPath(this.folderPath);
             this.persistFolderPath();
           },
-
           handleFolderPathBlur() {
             this.folderPath = this.normalizeFolderPath(this.folderPath);
             this.persistFolderPath();
             if (this.folderPath) this.autoExpandAncestors(this.folderPath);
           },
-
           clearFolderPath() {
             this.folderPath = "";
             this.persistFolderPath();
             this.showToast("已设为上传根目录");
           },
-
           selectUploadFolder(p, silent = false) {
             this.folderPath = this.normalizeFolderPath(p);
             this.persistFolderPath();
@@ -2031,18 +1977,15 @@
               this.showToast(`已选择目录：${this.folderPath || "根目录"}`);
             }
           },
-
           openUploadFolderCreator() {
             this.newUploadFolderPath = this.folderPath ? `${this.folderPath}/新目录` : "新目录";
             this.showUploadFolderCreator = true;
             this.$nextTick(() => this.$refs.newFolderInput?.focus?.());
           },
-
           cancelUploadFolderCreator() {
             this.showUploadFolderCreator = false;
             this.newUploadFolderPath = "";
           },
-
           async createUploadFolder() {
             if (!this.newUploadFolderPath.trim()) return;
             this.uploadFolderCreating = true;
@@ -2062,7 +2005,6 @@
 
               await this.fetchUploadFolders(true);
               this.selectUploadFolder(createdPath, true);
-              // 展开刚创建的目录自身，便于继续在其中新建子目录
               this.$set(this.expandedFolders, createdPath, true);
               this.persistExpanded();
 
@@ -2071,6 +2013,62 @@
               this.showToast(err.message, "error");
             } finally {
               this.uploadFolderCreating = false;
+            }
+          },
+
+          /* ===== 优化2：目录重命名与删除操作 ===== */
+          async handleRenameFolder(node) {
+            const newPath = window.prompt(`重命名目录：\n"${node.path}"\n\n请输入新路径（包含完整路径）：`, node.path);
+            if (newPath === null) return;
+            const targetPath = this.normalizeFolderPath(newPath);
+            if (!targetPath || targetPath === node.path) {
+              this.showToast("新路径与原路径相同或无效", "error");
+              return;
+            }
+
+            try {
+              const res = await fetch("/api/manage/folders", {
+                method: "PUT",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ sourcePath: node.path, targetPath }),
+              });
+              const data = await res.json();
+              if (!res.ok || !data.success) throw new Error(data.error || "重命名失败");
+
+              this.showToast(`已重命名：${targetPath}`, "success");
+              
+              // 如果当前路径在被重命名的目录下，自动更新当前路径
+              if (this.folderPath === node.path || this.folderPath.startsWith(node.path + "/")) {
+                const suffix = this.folderPath.slice(node.path.length);
+                this.selectUploadFolder(targetPath + suffix, true);
+              }
+              await this.fetchUploadFolders(true);
+            } catch (err) {
+              this.showToast(err.message, "error");
+            }
+          },
+
+          async handleDeleteFolder(node) {
+            if (!window.confirm(`⚠️ 确定要删除目录 "${node.path}" 及其所有子目录和文件吗？\n\n此操作不可撤销！`)) return;
+
+            try {
+              const res = await fetch(`/api/manage/folders?path=${encodeURIComponent(node.path)}&recursive=1`, {
+                method: "DELETE",
+                credentials: "include",
+              });
+              const data = await res.json();
+              if (!res.ok || !data.success) throw new Error(data.error || "删除失败");
+
+              this.showToast(`已删除目录：${node.path}`, "success");
+              
+              // 如果当前路径被删除了，重置到根目录
+              if (this.folderPath === node.path || this.folderPath.startsWith(node.path + "/")) {
+                this.selectUploadFolder("", true);
+              }
+              await this.fetchUploadFolders(true);
+            } catch (err) {
+              this.showToast(err.message, "error");
             }
           },
 
@@ -2096,18 +2094,15 @@
             }
           },
 
-          /* ============ 目录功能核心方法结束 ============ */
-
+          /* ===== 原有功能保持不变 ===== */
           triggerUpload() {
             this.$refs.fileInput.click();
           },
-
           handleFileSelect(e) {
             const files = Array.from(e.target.files || []);
             this.processFiles(files);
             e.target.value = "";
           },
-
           onDragOver() { this.isDragging = true; },
           onDragLeave() { this.isDragging = false; },
           onDrop(e) {
@@ -2115,3 +2110,438 @@
             const files = Array.from(e.dataTransfer.files || []);
             this.processFiles(files);
           },
+          async uploadFromUrl() {
+            if (!this.urlToUpload.trim()) return;
+            this.urlUploading = true;
+            try {
+              const res = await fetch(`${this.baseURL}/api/upload-from-url`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  url: this.urlToUpload,
+                  storageMode: this.storageMode,
+                  folderPath: this.folderPath,
+                }),
+                credentials: "include",
+              });
+              const data = await res.json();
+              if (!res.ok) throw new Error(data.error || "转存失败");
+              if (Array.isArray(data) && data[0]?.src) {
+                const fileName = this.urlToUpload.split("/").pop().split("?")[0] || "remote_file";
+                const fileObj = {
+                  name: fileName,
+                  fileName: fileName,
+                  url: `${this.baseURL}${data[0].src}`,
+                  size: 0,
+                  selected: false,
+                };
+                this.uploadedFiles.unshift(fileObj);
+                this.addToHistory(fileObj);
+                this.showToast("URL 转存成功", "success");
+                this.urlToUpload = "";
+                this.showUrlInput = false;
+              }
+            } catch (err) {
+              this.showToast(err.message, "error");
+            } finally {
+              this.urlUploading = false;
+            }
+          },
+          handleImageCompressToggle() {
+            this.imageUploadDecision = this.imageCompress.enabled ? "optimized" : "original";
+            this.saveImageCompressSettings();
+          },
+          setImageUploadDecision(mode) {
+            this.imageUploadDecision = mode;
+            this.imageCompress.enabled = (mode === "optimized");
+            this.saveImageCompressSettings();
+          },
+          selectCompressFormat(fmt) {
+            this.imageCompress.format = fmt;
+            this.saveImageCompressSettings();
+          },
+          saveImageCompressSettings() {
+            try {
+              localStorage.setItem("imageCompressSettings", JSON.stringify(this.imageCompress));
+            } catch (e) {}
+          },
+          isFormatSupported(fmt) {
+            return this.imageCompress.support?.[fmt] !== false;
+          },
+          setStorageMode(mode, silent = false) {
+            const labels = {
+              telegram: "Telegram 频道",
+              r2: "Cloudflare R2",
+              s3: "Amazon S3",
+              discord: "Discord 频道",
+              huggingface: "HuggingFace",
+              github: "GitHub Releases",
+            };
+
+            if (this.isGuest && !["telegram", "r2"].includes(mode)) {
+              this.showToast("访客模式仅支持 Telegram 和 R2 存储", "error");
+              return;
+            }
+            if (!this.isStorageAvailable(mode) && mode !== "telegram") {
+              this.showToast(`${labels[mode] || mode} 未配置或未启用`, "error");
+              return;
+            }
+
+            this.storageMode = mode;
+            this.storageTarget = labels[mode] || "Telegram 频道";
+            try { localStorage.setItem("storageMode", mode); } catch (e) {}
+
+            // 优化：切换存储节点时，加载该节点记忆的目录路径
+            this.loadFolderPathForMode(mode);
+
+            if (!silent) {
+              this.showToast(`已切换至：${this.storageTarget} (${this.currentUploadLimitLabel})`, "success");
+            }
+          },
+          getUploadLimit(storageMode) {
+            const fallback = {
+              telegram: { maxBytes: 20 * 1024 * 1024, directThreshold: 20 * 1024 * 1024, supportsChunkUpload: false },
+              r2: { maxBytes: 100 * 1024 * 1024, directThreshold: 20 * 1024 * 1024, supportsChunkUpload: true },
+              s3: { maxBytes: 100 * 1024 * 1024, directThreshold: 20 * 1024 * 1024, supportsChunkUpload: true },
+              discord: { maxBytes: 25 * 1024 * 1024, directThreshold: 20 * 1024 * 1024, supportsChunkUpload: true },
+              huggingface: { maxBytes: 35 * 1024 * 1024, directThreshold: 20 * 1024 * 1024, supportsChunkUpload: true },
+              github: { maxBytes: 100 * 1024 * 1024, directThreshold: 20 * 1024 * 1024, supportsChunkUpload: true },
+            };
+            const base = fallback[storageMode] || fallback.telegram;
+            return { ...base, ...(this.uploadLimits?.[storageMode] || {}) };
+          },
+          async processFiles(files) {
+            if (!files || !files.length) return;
+            const limit = this.getUploadLimit(this.storageMode);
+            const maxBytes = this.isGuest && this.guestUploadConfig
+                ? Math.min(limit.maxBytes || Infinity, this.guestUploadConfig.maxFileSize)
+                : limit.maxBytes;
+
+            for (const file of files) {
+              if (maxBytes && file.size > maxBytes) {
+                this.showToast(`文件 [${file.name}] 超过限制 (${this.formatSize(maxBytes)})`, "error");
+                continue;
+              }
+              const item = {
+                name: file.name, size: file.size, file: file, status: "waiting",
+                preview: file.type.startsWith("image/") ? URL.createObjectURL(file) : null,
+                progress: 0, error: null, compressionStatus: "",
+              };
+              this.uploadingFiles.push(item);
+            }
+            this.startUpload();
+          },
+          async startUpload() {
+            const waiting = this.uploadingFiles.filter((f) => f.status === "waiting");
+            for (const item of waiting) {
+              try {
+                item.status = "uploading";
+                item.progress = 15;
+                if (!this.isGuest && item.file.size > this.uploadConfig.smallFileThreshold && this.getUploadLimit(this.storageMode).supportsChunkUpload) {
+                  await this.chunkedUpload(item);
+                } else {
+                  await this.directUpload(item);
+                }
+              } catch (err) {
+                item.status = "error";
+                item.error = err.message;
+              }
+            }
+            setTimeout(() => {
+              this.uploadingFiles = this.uploadingFiles.filter((f) => f.status !== "success");
+            }, 2500);
+          },
+          async directUpload(item) {
+            const formData = new FormData();
+            formData.append("file", item.file);
+            formData.append("storageMode", this.storageMode);
+            formData.append("folderPath", this.folderPath);
+            const res = await fetch(`${this.baseURL}/upload`, {
+              method: "POST", body: formData, credentials: "include",
+            });
+            const data = await res.json();
+            if (!res.ok || (Array.isArray(data) && data[0]?.error)) {
+              throw new Error(data[0]?.error || data.error || "上传未成功");
+            }
+            item.status = "success";
+            item.progress = 100;
+            const src = data[0]?.src;
+            const uploadedObj = { name: item.name, fileName: item.name, url: `${this.baseURL}${src}`, size: item.size, selected: false };
+            this.uploadedFiles.unshift(uploadedObj);
+            this.addToHistory(uploadedObj);
+          },
+          async chunkedUpload(item) {
+            const file = item.file;
+            const chunkSize = this.uploadConfig.chunkSize;
+            const totalChunks = Math.ceil(file.size / chunkSize);
+            const initRes = await fetch(`${this.baseURL}/api/chunked-upload/init`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                fileName: file.name, fileSize: file.size, fileType: file.type,
+                totalChunks: totalChunks, storageMode: this.storageMode, folderPath: this.folderPath,
+              }),
+              credentials: "include",
+            });
+            const initData = await initRes.json();
+            if (!initRes.ok) throw new Error(initData.error || "初始化分片失败");
+            const uploadId = initData.uploadId;
+
+            for (let i = 0; i < totalChunks; i++) {
+              const start = i * chunkSize;
+              const end = Math.min(start + chunkSize, file.size);
+              const chunk = file.slice(start, end);
+              const fd = new FormData();
+              fd.append("chunk", chunk);
+              fd.append("uploadId", uploadId);
+              fd.append("chunkIndex", i);
+              const chunkRes = await fetch(`${this.baseURL}/api/chunked-upload/chunk`, {
+                method: "POST", body: fd, credentials: "include",
+              });
+              if (!chunkRes.ok) throw new Error(`分片 ${i + 1} 上传失败`);
+              item.progress = Math.round(((i + 1) / totalChunks) * 90);
+            }
+            const completeRes = await fetch(`${this.baseURL}/api/chunked-upload/complete`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ uploadId }),
+              credentials: "include",
+            });
+            const completeData = await completeRes.json();
+            if (!completeRes.ok) throw new Error(completeData.error || "合并分片失败");
+            item.status = "success";
+            item.progress = 100;
+            const uploadedObj = { name: item.name, fileName: item.name, url: `${this.baseURL}${completeData.src}`, size: item.size, selected: false };
+            this.uploadedFiles.unshift(uploadedObj);
+            this.addToHistory(uploadedObj);
+          },
+          retryUpload(file) {
+            file.status = "waiting";
+            file.error = null;
+            this.startUpload();
+          },
+          retryAllFailed() {
+            this.uploadingFiles.filter((f) => f.status === "error").forEach((f) => {
+              f.status = "waiting";
+              f.error = null;
+            });
+            this.startUpload();
+          },
+          clearUploadQueue() { this.uploadingFiles = []; },
+          formatLink(file) {
+            const url = this.getCleanFileUrl(file);
+            const name = this.getDisplayName(file);
+            if (this.linkFormat === "markdown") return `![${name}](${url})`;
+            if (this.linkFormat === "html") return `<img src="${url}" alt="${name}">`;
+            if (this.linkFormat === "bbcode") return `[img]${url}[/img]`;
+            if (this.linkFormat === "ubb") return `[IMG]${url}[/IMG]`;
+            return url;
+          },
+          getBatchLinks() {
+            const targets = this.uploadedFiles.filter((f) => f.selected);
+            const list = targets.length ? targets : this.uploadedFiles;
+            return list.map((f) => this.formatLink(f)).join("\n");
+          },
+          copyLink(file) {
+            this.copyToClipboard(this.formatLink(file));
+            this.showToast("已复制直链", "success");
+          },
+          copySelectedLinks() {
+            this.copyToClipboard(this.getBatchLinks());
+            this.showToast(`已复制 ${this.selectedCount} 个链接`, "success");
+          },
+          selectAll() {
+            const target = !this.isAllSelected;
+            this.uploadedFiles.forEach((f) => (f.selected = target));
+          },
+          clearResults() { this.uploadedFiles = []; },
+          removeFromResults(idx) { this.uploadedFiles.splice(idx, 1); },
+          downloadFile(file) {
+            const a = document.createElement("a");
+            a.href = this.getCleanFileUrl(file);
+            a.download = this.getDisplayName(file);
+            a.click();
+          },
+          previewImage(url) { this.previewData = { type: "native-image", url }; },
+          openPreview(file) {
+            const name = this.getDisplayName(file);
+            const url = this.getCleanFileUrl(file);
+            const ext = name.split(".").pop().toLowerCase();
+            if (["jpg", "jpeg", "png", "webp", "gif", "svg"].includes(ext)) {
+              this.previewData = { type: "native-image", url, fileName: name };
+              return;
+            }
+            if (["mp4", "webm", "mp3", "wav", "pdf"].includes(ext)) {
+              this.previewData = { type: "iframe", iframeUrl: `${LOCAL_PREVIEW_PAGE}?url=${encodeURIComponent(url)}&title=${encodeURIComponent(name)}&embed=1`, url, fileName: name };
+              return;
+            }
+            this.downloadFile(file);
+          },
+          closePreview() {
+            if (this.$refs.previewIframe) this.$refs.previewIframe.src = "about:blank";
+            this.previewData = null;
+          },
+          copyPreviewLink() {
+            if (this.previewData) {
+              this.copyToClipboard(this.previewData.url);
+              this.showToast("直链已复制", "success");
+            }
+          },
+          downloadPreviewFile() {
+            if (this.previewData) {
+              const a = document.createElement("a");
+              a.href = this.previewData.url;
+              a.download = this.previewData.fileName || "file";
+              a.click();
+            }
+          },
+          addToHistory(file) {
+            if (!this.uploadHistory.some((h) => h.url === file.url)) {
+              this.uploadHistory.unshift({ ...file, selected: false });
+              try { localStorage.setItem("uploadHistory", JSON.stringify(this.uploadHistory)); } catch (e) {}
+            }
+          },
+          clearHistory() {
+            this.uploadHistory = [];
+            try { localStorage.setItem("uploadHistory", "[]"); } catch (e) {}
+            this.showToast("本地历史已清空", "success");
+          },
+          copySelectedHistoryLinks() {
+            const links = this.uploadHistory.map((f) => this.formatLink(f)).join("\n");
+            this.copyToClipboard(links);
+            this.showToast("已复制全部历史直链", "success");
+          },
+          handleHistoryImgError(e, item) {
+            item._imgError = true;
+            this.$forceUpdate();
+          },
+          getDisplayName(item) { return item.fileName || item.name || "未命名文件"; },
+          getCleanFileUrl(item) {
+            const raw = item.url || item.path || "";
+            if (raw.startsWith("http")) return raw;
+            return `${this.baseURL}${raw}`;
+          },
+          isImageFile(filename) { return /\.(jpe?g|png|webp|gif|svg|bmp)$/i.test(filename || ""); },
+          getFileIcon(filename) {
+            const ext = (filename || "").split(".").pop().toLowerCase();
+            if (["mp4", "mkv", "avi", "mov"].includes(ext)) return "fas fa-video";
+            if (["mp3", "wav", "flac"].includes(ext)) return "fas fa-music";
+            if (["zip", "rar", "7z", "tar"].includes(ext)) return "fas fa-file-zipper";
+            if (["pdf", "doc", "docx", "txt"].includes(ext)) return "fas fa-file-lines";
+            return "fas fa-file";
+          },
+          getStatusText(status) {
+            const texts = { waiting: "等待中", processing: "处理中", uploading: "上传中", success: "已完成", error: "失败" };
+            return texts[status] || status;
+          },
+          formatSize(bytes) {
+            if (!bytes) return "0 B";
+            const k = 1024;
+            const sizes = ["B", "KB", "MB", "GB"];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return (bytes / Math.pow(k, i)).toFixed(1) + " " + sizes[i];
+          },
+          copyToClipboard(text) {
+            const t = document.createElement("textarea");
+            t.value = text;
+            t.style.position = "fixed";
+            t.style.opacity = "0";
+            document.body.appendChild(t);
+            t.select();
+            document.execCommand("copy");
+            document.body.removeChild(t);
+          },
+          showToast(message, type = "info") {
+            this.toasts.push({ message, type });
+            setTimeout(() => { this.toasts.shift(); }, 2800);
+          },
+          async checkAuth() {
+            this.authChecking = true;
+            try {
+              const res = await fetch("/api/auth/check", { credentials: "include" });
+              const data = await res.json();
+              if (data.authRequired && !data.authenticated) {
+                if (data.guestUpload && data.guestUpload.enabled) {
+                  this.isGuest = true;
+                  this.guestUploadConfig = {
+                    maxFileSize: data.guestUpload.maxFileSize || 5 * 1024 * 1024,
+                    maxDailyUploads: data.guestUpload.dailyLimit || 10,
+                  };
+                  this.storageMode = "telegram";
+                  this.storageTarget = "Telegram 频道";
+                  return;
+                }
+              }
+              this.isAuthenticated = data.authenticated || false;
+            } catch (e) {
+            } finally {
+              this.authChecking = false;
+            }
+          },
+          async checkStorageTarget() {
+            try {
+              const res = await fetch("/api/status", { credentials: "include" });
+              const st = await res.json();
+              this.uploadLimits = st.uploadLimits || {};
+              const isEnabled = (backend) => !!(backend && (backend.connected || backend.configured || backend.enabled) && backend.enabled !== false);
+              this.r2Available = isEnabled(st.r2);
+              this.s3Available = isEnabled(st.s3);
+              this.discordAvailable = isEnabled(st.discord);
+              this.huggingfaceAvailable = isEnabled(st.huggingface);
+              this.githubAvailable = isEnabled(st.github);
+
+              const saved = localStorage.getItem("storageMode") || "telegram";
+              if (this.isStorageAvailable(saved)) {
+                this.setStorageMode(saved, true);
+              } else {
+                this.setStorageMode("telegram", true);
+              }
+            } catch (e) {
+              this.setStorageMode("telegram", true);
+            }
+          },
+          async handleLogout() {
+            try {
+              await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+              window.location.href = "/login.html";
+            } catch (e) {}
+          },
+        },
+        async mounted() {
+          try {
+            const th = localStorage.getItem("theme") || "light";
+            this.currentTheme = th;
+            document.documentElement.setAttribute("data-theme", th);
+            
+            // 读取上次记忆的展开状态和最近目录
+            const ex = localStorage.getItem("folderTreeExpanded");
+            if (ex) this.expandedFolders = JSON.parse(ex) || {};
+            const rc = localStorage.getItem("folderRecent");
+            if (rc) this.recentFolders = JSON.parse(rc) || [];
+
+            const hist = localStorage.getItem("uploadHistory");
+            if (hist) this.uploadHistory = JSON.parse(hist);
+          } catch (e) {}
+
+          await this.checkAuth();
+          await this.checkStorageTarget();
+          this.fetchUploadFolders();
+
+          this.globalPasteHandler = (e) => {
+            if (["INPUT", "TEXTAREA"].includes(e.target?.tagName)) return;
+            const files = Array.from(e.clipboardData?.files || []);
+            if (files.length) {
+              e.preventDefault();
+              this.processFiles(files);
+              this.showToast(`已捕获 ${files.length} 个剪贴板文件并加入上传`, "success");
+            }
+          };
+          document.addEventListener("paste", this.globalPasteHandler);
+        },
+        beforeDestroy() {
+          if (this.globalPasteHandler) document.removeEventListener("paste", this.globalPasteHandler);
+        },
+      });
+    </script>
+  </body>
+</html>
