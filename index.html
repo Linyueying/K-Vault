@@ -1191,6 +1191,70 @@
 
       /* ===== 历史面板样式结束 ===== */
 
+      /* ===== 已失效（服务端已删除）样式 ===== */
+      .history-grid-card.is-dead,
+      .history-row.is-dead,
+      .result-item-card.is-dead {
+        opacity: 0.58;
+        filter: grayscale(0.55);
+      }
+      .history-grid-card.is-dead:hover,
+      .history-row.is-dead:hover {
+        transform: none;
+        border-color: var(--glass-border);
+        box-shadow: none;
+      }
+      .dead-badge {
+        position: absolute;
+        left: 50%;
+        top: 40%;
+        transform: translate(-50%, -50%);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 9px;
+        border-radius: var(--radius-pill);
+        background: rgba(239, 68, 68, 0.92);
+        color: #fff;
+        font-size: 0.62rem;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+        z-index: 4;
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
+        pointer-events: none;
+      }
+      .dead-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        margin-left: 6px;
+        padding: 1px 7px;
+        border-radius: var(--radius-pill);
+        background: rgba(239, 68, 68, 0.14);
+        color: #ef4444;
+        font-size: 0.62rem;
+        font-weight: 800;
+        vertical-align: middle;
+      }
+      html[data-theme="dark"] .dead-tag {
+        background: rgba(239, 68, 68, 0.25);
+        color: #fca5a5;
+      }
+      .history-verify-tip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        font-weight: 600;
+        cursor: pointer;
+        user-select: none;
+        transition: var(--transition);
+      }
+      .history-verify-tip:hover { color: var(--primary); }
+      .history-verify-tip i { color: var(--primary); font-size: 0.75rem; }
+
       .bottom-floating-dock {
         position: fixed;
         bottom: max(16px, env(safe-area-inset-bottom, 16px));
@@ -1669,16 +1733,21 @@
             <button class="format-chip-btn" :class="{ active: linkFormat === 'ubb' }" @click="linkFormat = 'ubb'">UBB</button>
           </div>
 
-          <div class="result-item-card" v-for="(file, index) in uploadedFiles" :key="index">
+          <div class="result-item-card" v-for="(file, index) in uploadedFiles" :key="index" :class="{ 'is-dead': file._dead }">
             <input type="checkbox" v-model="file.selected" style="accent-color: var(--primary); cursor: pointer;" />
             <img
+              v-if="!file._dead"
               :src="getCleanFileUrl(file)"
               class="task-thumb-img"
               @click="previewImage(getCleanFileUrl(file))"
               onerror="this.style.display='none'"
             />
+            <div v-else class="task-thumb-img"><i class="fas fa-link-slash" style="color:#ef4444;"></i></div>
             <div style="flex: 1; min-width: 0;">
-              <div class="task-name-text">{{ getDisplayName(file) }}</div>
+              <div class="task-name-text">
+                {{ getDisplayName(file) }}
+                <span class="dead-tag" v-if="file._dead"><i class="fas fa-link-slash"></i> 已失效</span>
+              </div>
               <div class="mono-link-text" @click="copyLink(file)" :title="formatLink(file)">
                 {{ formatLink(file) }}
               </div>
@@ -1958,6 +2027,10 @@
                 <i class="fas fa-filter"></i>
                 <span>当前显示 <strong>{{ historySorted.length }}</strong> 条</span>
               </span>
+              <span class="history-verify-tip" @click="verifyHistory(true)" title="点击重新校验所有链接是否仍然有效">
+                <i class="fas" :class="historyVerifying ? 'fa-spinner fa-spin' : 'fa-shield-halved'"></i>
+                <span>{{ historyVerifying ? '校验中…' : '校验有效性' }}</span>
+              </span>
             </div>
 
             <!-- 搜索 / 排序 / 视图切换 -->
@@ -2017,6 +2090,14 @@
               <button class="action-pill-btn" style="padding: 4px 10px; font-size: 0.74rem;" @click="exportHistory" :disabled="!historySorted.length">
                 <i class="fas fa-file-export"></i> 导出
               </button>
+              <button
+                v-if="historyDeadCount > 0"
+                class="action-pill-btn"
+                style="padding: 4px 10px; font-size: 0.74rem; color: #ef4444; border-color: rgba(239,68,68,.4);"
+                @click="purgeDeadHistory"
+              >
+                <i class="fas fa-link-slash"></i> 清理失效 ({{ historyDeadCount }})
+              </button>
               <button class="action-pill-btn" style="padding: 4px 10px; font-size: 0.74rem; color: #ef4444;" @click="clearHistory" :disabled="!uploadHistory.length">
                 <i class="fas fa-broom"></i> 清空
               </button>
@@ -2036,23 +2117,24 @@
                     class="history-grid-card"
                     v-for="item in group.items"
                     :key="item.id"
-                    :class="{ 'is-selected': item.selected }"
+                    :class="{ 'is-selected': item.selected, 'is-dead': item._dead }"
                     @click="historyPreview(item)"
                   >
                     <input type="checkbox" class="history-card-check" v-model="item.selected" @click.stop />
                     <div class="history-thumb">
                       <img
-                        v-if="isImageFile(getDisplayName(item)) && !item._imgError"
+                        v-if="!item._dead && isImageFile(getDisplayName(item)) && !item._imgError"
                         :src="getCleanFileUrl(item)"
                         @error="handleHistoryImgError($event, item)"
                       />
-                      <i v-else :class="getFileIcon(getDisplayName(item))"></i>
+                      <i v-else :class="item._dead ? 'fas fa-link-slash' : getFileIcon(getDisplayName(item))"></i>
                     </div>
+                    <span class="dead-badge" v-if="item._dead"><i class="fas fa-link-slash"></i> 已失效</span>
                     <div class="history-grid-name" :title="getDisplayName(item)">{{ getDisplayName(item) }}</div>
                     <div class="history-grid-actions">
-                      <button class="history-mini-btn" @click.stop="historyCopyLink(item)" title="复制直链"><i class="fas fa-copy"></i></button>
-                      <button class="history-mini-btn" @click.stop="historyDownload(item)" title="下载"><i class="fas fa-download"></i></button>
-                      <button class="history-mini-btn danger" @click.stop="historyDelete(item)" title="删除"><i class="fas fa-xmark"></i></button>
+                      <button v-if="!item._dead" class="history-mini-btn" @click.stop="historyCopyLink(item)" title="复制直链"><i class="fas fa-copy"></i></button>
+                      <button v-if="!item._dead" class="history-mini-btn" @click.stop="historyDownload(item)" title="下载"><i class="fas fa-download"></i></button>
+                      <button class="history-mini-btn danger" @click.stop="historyDelete(item)" title="删除记录"><i class="fas fa-xmark"></i></button>
                     </div>
                   </div>
                 </div>
@@ -2063,19 +2145,22 @@
                     class="history-row"
                     v-for="item in group.items"
                     :key="item.id"
-                    :class="{ 'is-selected': item.selected }"
+                    :class="{ 'is-selected': item.selected, 'is-dead': item._dead }"
                   >
                     <input type="checkbox" v-model="item.selected" style="accent-color: var(--primary); cursor: pointer; flex-shrink: 0;" />
                     <div class="history-row-thumb" @click="historyPreview(item)">
                       <img
-                        v-if="isImageFile(getDisplayName(item)) && !item._imgError"
+                        v-if="!item._dead && isImageFile(getDisplayName(item)) && !item._imgError"
                         :src="getCleanFileUrl(item)"
                         @error="handleHistoryImgError($event, item)"
                       />
-                      <i v-else :class="getFileIcon(getDisplayName(item))"></i>
+                      <i v-else :class="item._dead ? 'fas fa-link-slash' : getFileIcon(getDisplayName(item))"></i>
                     </div>
                     <div class="history-row-info">
-                      <div class="history-row-name" :title="getDisplayName(item)">{{ getDisplayName(item) }}</div>
+                      <div class="history-row-name" :title="getDisplayName(item)">
+                        {{ getDisplayName(item) }}
+                        <span class="dead-tag" v-if="item._dead"><i class="fas fa-link-slash"></i> 已失效</span>
+                      </div>
                       <div class="history-row-meta">
                         <span>{{ formatSize(item.size) }}</span>
                         <span>{{ formatHistoryTime(item.uploadTime) }}</span>
@@ -2084,10 +2169,10 @@
                       </div>
                     </div>
                     <div class="history-row-actions">
-                      <button class="mini-icon-btn" @click="historyCopyLink(item)" title="复制直链"><i class="fas fa-copy"></i></button>
-                      <button class="mini-icon-btn" @click="historyPreview(item)" title="预览"><i class="fas fa-eye"></i></button>
-                      <button class="mini-icon-btn" @click="historyDownload(item)" title="下载"><i class="fas fa-download"></i></button>
-                      <button class="mini-icon-btn danger" @click="historyDelete(item)" title="删除"><i class="fas fa-xmark"></i></button>
+                      <button v-if="!item._dead" class="mini-icon-btn" @click="historyCopyLink(item)" title="复制直链"><i class="fas fa-copy"></i></button>
+                      <button v-if="!item._dead" class="mini-icon-btn" @click="historyPreview(item)" title="预览"><i class="fas fa-eye"></i></button>
+                      <button v-if="!item._dead" class="mini-icon-btn" @click="historyDownload(item)" title="下载"><i class="fas fa-download"></i></button>
+                      <button class="mini-icon-btn danger" @click="historyDelete(item)" title="删除记录"><i class="fas fa-xmark"></i></button>
                     </div>
                   </div>
                 </div>
@@ -2285,6 +2370,8 @@
           historyView: "grid",
           historyTypeFilter: "all",
           historyMaxItems: 500,
+          historyVerifying: false,
+          historyLastVerified: 0,
           historyTypeTabs: [
             { value: "all", label: "全部" },
             { value: "image", label: "图片" },
@@ -2296,10 +2383,11 @@
         },
         computed: {
           selectedCount() {
-            return this.uploadedFiles.filter((f) => f.selected).length;
+            return this.uploadedFiles.filter((f) => f.selected && !f._dead).length;
           },
           isAllSelected() {
-            return this.uploadedFiles.length > 0 && this.uploadedFiles.every((f) => f.selected);
+            const alive = this.uploadedFiles.filter((f) => !f._dead);
+            return alive.length > 0 && alive.every((f) => f.selected);
           },
           failedCount() {
             return this.uploadingFiles.filter((f) => f.status === "error").length;
@@ -2375,6 +2463,9 @@
             const totalSize = list.reduce((sum, it) => sum + (Number(it.size) || 0), 0);
             return { count: list.length, totalSize };
           },
+          historyDeadCount() {
+            return this.uploadHistory.filter((it) => it._dead).length;
+          },
           historyTypeCounts() {
             const counts = { all: this.uploadHistory.length, image: 0, video: 0, audio: 0, doc: 0, other: 0 };
             this.uploadHistory.forEach((it) => {
@@ -2448,7 +2539,7 @@
             return groups;
           },
           historyAllSelected() {
-            const list = this.historySorted;
+            const list = this.historySorted.filter((it) => !it._dead);
             return list.length > 0 && list.every((it) => it.selected);
           },
           historySelectedCount() {
@@ -2459,10 +2550,12 @@
           openDrawer(tab) {
             this.activeDrawerTab = tab;
             this.showDrawer = true;
+            if (tab === "history") this.verifyHistory();
           },
           openMoreDrawer() {
             this.activeDrawerTab = this.lastMoreTab || "compress";
             this.showDrawer = true;
+            if (this.activeDrawerTab === "history") this.verifyHistory();
           },
           switchDrawerTab(tab) {
             this.activeDrawerTab = tab;
@@ -2471,6 +2564,9 @@
             }
             if (tab === "folder" && !this.uploadFoldersFetched) {
               this.fetchUploadFolders();
+            }
+            if (tab === "history") {
+              this.verifyHistory();
             }
           },
           getStorageIcon(mode) {
@@ -2713,6 +2809,7 @@
                   url: `${this.baseURL}${data[0].src}`,
                   size: 0,
                   selected: false,
+                  _dead: false,
                 };
                 this.uploadedFiles.unshift(fileObj);
                 this.addToHistory(fileObj);
@@ -2844,7 +2941,7 @@
             item.status = "success";
             item.progress = 100;
             const src = data[0]?.src;
-            const uploadedObj = { name: item.name, fileName: item.name, url: `${this.baseURL}${src}`, size: item.size, selected: false };
+            const uploadedObj = { name: item.name, fileName: item.name, url: `${this.baseURL}${src}`, size: item.size, selected: false, _dead: false };
             this.uploadedFiles.unshift(uploadedObj);
             this.addToHistory(uploadedObj);
           },
@@ -2889,7 +2986,7 @@
             if (!completeRes.ok) throw new Error(completeData.error || "合并分片失败");
             item.status = "success";
             item.progress = 100;
-            const uploadedObj = { name: item.name, fileName: item.name, url: `${this.baseURL}${completeData.src}`, size: item.size, selected: false };
+            const uploadedObj = { name: item.name, fileName: item.name, url: `${this.baseURL}${completeData.src}`, size: item.size, selected: false, _dead: false };
             this.uploadedFiles.unshift(uploadedObj);
             this.addToHistory(uploadedObj);
           },
@@ -2916,25 +3013,33 @@
             return url;
           },
           getBatchLinks() {
-            const targets = this.uploadedFiles.filter((f) => f.selected);
-            const list = targets.length ? targets : this.uploadedFiles;
+            const alive = this.uploadedFiles.filter((f) => !f._dead);
+            const targets = alive.filter((f) => f.selected);
+            const list = targets.length ? targets : alive;
             return list.map((f) => this.formatLink(f)).join("\n");
           },
           copyLink(file) {
+            if (!this.ensureAlive(file)) return;
             this.copyToClipboard(this.formatLink(file));
             this.showToast("已复制直链", "success");
           },
           copySelectedLinks() {
-            this.copyToClipboard(this.getBatchLinks());
-            this.showToast(`已复制 ${this.selectedCount} 个链接`, "success");
+            const list = this.uploadedFiles.filter((f) => f.selected && !f._dead);
+            if (!list.length) {
+              this.showToast("所选文件均已失效", "error");
+              return;
+            }
+            this.copyToClipboard(list.map((f) => this.formatLink(f)).join("\n"));
+            this.showToast(`已复制 ${list.length} 个链接`, "success");
           },
           selectAll() {
             const target = !this.isAllSelected;
-            this.uploadedFiles.forEach((f) => (f.selected = target));
+            this.uploadedFiles.forEach((f) => { if (!f._dead) f.selected = target; });
           },
           clearResults() { this.uploadedFiles = []; },
           removeFromResults(idx) { this.uploadedFiles.splice(idx, 1); },
           downloadFile(file) {
+            if (!this.ensureAlive(file)) return;
             const a = document.createElement("a");
             a.href = this.getCleanFileUrl(file);
             a.download = this.getDisplayName(file);
@@ -2942,6 +3047,7 @@
           },
           previewImage(url) { this.previewData = { type: "native-image", url }; },
           openPreview(file) {
+            if (!this.ensureAlive(file)) return;
             const name = this.getDisplayName(file);
             const url = this.getCleanFileUrl(file);
             const ext = name.split(".").pop().toLowerCase();
@@ -2975,6 +3081,89 @@
           },
 
           /* =========================================================
+             ===== 文件存活校验（修复管理端删除后用户端仍可下载） =====
+             ========================================================= */
+          ensureAlive(item) {
+            if (item && item._dead) {
+              this.showToast("该文件已在服务端被删除，链接已失效", "error");
+              return false;
+            }
+            return true;
+          },
+          async verifyFileAlive(item) {
+            const url = this.getCleanFileUrl(item);
+            if (!url || !/^https?:/i.test(url)) return null;
+            try {
+              const res = await fetch(url, {
+                method: "HEAD",
+                credentials: "include",
+                cache: "no-store",
+              });
+              if (res.status === 404 || res.status === 410) return false;
+              return true;
+            } catch (e) {
+              return null;
+            }
+          },
+          async verifyItemsAlive(items, concurrency = 5) {
+            const queue = (items || []).filter((it) => it && this.getCleanFileUrl(it));
+            if (!queue.length) return;
+            let cursor = 0;
+            const worker = async () => {
+              while (cursor < queue.length) {
+                const item = queue[cursor++];
+                const alive = await this.verifyFileAlive(item);
+                if (alive === false) {
+                  if (!item._dead) this.$set(item, "_dead", true);
+                } else if (alive === true) {
+                  if (item._dead) this.$set(item, "_dead", false);
+                }
+              }
+            };
+            const n = Math.min(concurrency, queue.length);
+            await Promise.all(Array.from({ length: n }, worker));
+          },
+          async verifyHistory(force = false, silent = false) {
+            if (this.historyVerifying || !this.uploadHistory.length) return;
+            const now = Date.now();
+            if (!force && now - this.historyLastVerified < 30 * 1000) return;
+            this.historyVerifying = true;
+            this.historyLastVerified = now;
+            const before = this.historyDeadCount;
+            try {
+              const list = this.uploadHistory.slice(0, 300);
+              await this.verifyItemsAlive(list, 5);
+              const delta = this.historyDeadCount - before;
+              if (!silent) {
+                this.showToast(
+                  delta > 0 ? `校验完成，发现 ${delta} 个已失效文件` : "校验完成，所有链接均有效",
+                  delta > 0 ? "error" : "success"
+                );
+              }
+            } catch (e) {
+              if (!silent) this.showToast("校验失败，请稍后重试", "error");
+            } finally {
+              this.historyVerifying = false;
+            }
+          },
+          async verifyResults() {
+            const items = (this.uploadedFiles || []).slice();
+            if (!items.length) return;
+            await this.verifyItemsAlive(items, 4);
+          },
+          purgeDeadHistory() {
+            const dead = this.uploadHistory.filter((it) => it._dead);
+            if (!dead.length) {
+              this.showToast("没有已失效的记录");
+              return;
+            }
+            const ids = new Set(dead.map((it) => it.id));
+            this.uploadHistory = this.uploadHistory.filter((it) => !ids.has(it.id));
+            this.persistHistory();
+            this.showToast(`已清理 ${dead.length} 条失效记录`, "success");
+          },
+
+          /* =========================================================
              ===== 本地历史：核心方法（全面升级） =====
              ========================================================= */
           persistHistory() {
@@ -2991,7 +3180,6 @@
               }));
               localStorage.setItem("uploadHistory", JSON.stringify(serialized));
             } catch (e) {
-              // 存储空间不足时自动裁剪一半后重试
               try {
                 this.uploadHistory = this.uploadHistory.slice(
                   0,
@@ -3017,6 +3205,7 @@
                 folderPath: it.folderPath || "",
                 uploadTime: Number(it.uploadTime || it.time) || 0,
                 selected: false,
+                _dead: false,
               }));
             } catch (e) {
               this.uploadHistory = [];
@@ -3034,8 +3223,8 @@
               folderPath: this.folderPath || "",
               uploadTime: Date.now(),
               selected: false,
+              _dead: false,
             };
-            // 去重：同一地址只保留最新一条
             const dupIdx = this.uploadHistory.findIndex(
               (it) => this.getCleanFileUrl(it) === url
             );
@@ -3072,16 +3261,20 @@
           toggleHistorySelectAll() {
             const target = !this.historyAllSelected;
             this.historySorted.forEach((it) => {
-              it.selected = target;
+              if (!it._dead) it.selected = target;
             });
           },
           historyCopyLink(item) {
+            if (!this.ensureAlive(item)) return;
             this.copyToClipboard(this.formatLink(item));
             this.showToast("已复制直链", "success");
           },
           copyHistorySelected() {
-            const list = this.historySorted.filter((it) => it.selected);
-            if (!list.length) return;
+            const list = this.historySorted.filter((it) => it.selected && !it._dead);
+            if (!list.length) {
+              this.showToast("所选记录均已失效", "error");
+              return;
+            }
             const text = list.map((it) => this.formatLink(it)).join("\n");
             this.copyToClipboard(text);
             this.showToast(`已复制 ${list.length} 条链接`, "success");
@@ -3090,6 +3283,7 @@
             this.openPreview(item);
           },
           historyDownload(item) {
+            if (!this.ensureAlive(item)) return;
             const a = document.createElement("a");
             a.href = this.getCleanFileUrl(item);
             a.download = this.getDisplayName(item);
@@ -3098,8 +3292,11 @@
             a.click();
           },
           addHistorySelectedToResults() {
-            const list = this.historySorted.filter((it) => it.selected);
-            if (!list.length) return;
+            const list = this.historySorted.filter((it) => it.selected && !it._dead);
+            if (!list.length) {
+              this.showToast("所选记录均已失效", "error");
+              return;
+            }
             let added = 0;
             list.forEach((it) => {
               const url = this.getCleanFileUrl(it);
@@ -3110,6 +3307,7 @@
                 url: it.url,
                 size: it.size,
                 selected: false,
+                _dead: false,
               });
               added++;
             });
@@ -3124,7 +3322,7 @@
             if (!list.length) return;
             const lines = list.map(
               (it) =>
-                `${this.getDisplayName(it)}\t${this.getCleanFileUrl(it)}\t${this.formatSize(it.size)}\t${this.formatHistoryTime(it.uploadTime)}`
+                `${this.getDisplayName(it)}\t${this.getCleanFileUrl(it)}\t${this.formatSize(it.size)}\t${this.formatHistoryTime(it.uploadTime)}${it._dead ? "\t[已失效]" : ""}`
             );
             const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
             const a = document.createElement("a");
@@ -3272,13 +3470,18 @@
             const ex = localStorage.getItem("folderTreeExpanded");
             if (ex) this.expandedFolders = JSON.parse(ex) || {};
 
-            // 全面升级后的本地历史加载
             this.loadHistory();
           } catch (e) {}
 
           await this.checkAuth();
           await this.checkStorageTarget();
           this.fetchUploadFolders();
+
+          // 静默校验本地历史与交付结果中的文件是否仍然存在
+          setTimeout(() => {
+            this.verifyHistory(false, true);
+            this.verifyResults();
+          }, 800);
 
           this.globalPasteHandler = (e) => {
             if (["INPUT", "TEXTAREA"].includes(e.target?.tagName)) return;
