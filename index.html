@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>K-Vault | 极简液态云盘 & 托管服务</title>
+    <title>一云</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" href="/logo.png">
     <link rel="shortcut icon" href="/favicon.ico">
@@ -12,6 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css" />
     <style>
+      [v-cloak] {
+        display: none !important;
+      }
+
       :root {
         --primary: #0284c7;
         --primary-rgb: 2, 132, 199;
@@ -348,8 +352,13 @@
         transform: translateY(-2px);
         box-shadow: 0 6px 16px rgba(56, 189, 248, 0.2);
       }
+      .action-pill-btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: var(--shadow-soft) !important;
+      }
 
-      /* COMPACT STREAMLINED URL TRANSFER PILL */
       .url-pill-bar {
         display: flex;
         align-items: center;
@@ -406,7 +415,6 @@
         cursor: not-allowed;
       }
 
-      /* COMPACT STREAMLINED FOLDER INPUT BAR */
       .folder-pill-bar {
         display: flex;
         align-items: center;
@@ -459,7 +467,7 @@
         box-shadow: 0 5px 14px rgba(2, 132, 199, 0.38);
       }
 
-      /* ===== 目录树相关样式（新增） ===== */
+      /* ===== 目录树相关样式 ===== */
       .folder-current-bar {
         display: flex;
         align-items: center;
@@ -514,12 +522,6 @@
         margin: 14px 0 7px;
       }
       .folder-section-label i { color: var(--primary); font-size: 0.72rem; }
-
-      .folder-chips-row {
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-      }
 
       .folder-tree-panel {
         border: 1.5px solid var(--glass-border-ice);
@@ -604,6 +606,43 @@
         flex-shrink: 0;
         font-weight: 600;
       }
+      .folder-tree-actions {
+        display: flex;
+        gap: 4px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+      .folder-tree-row:hover .folder-tree-actions,
+      .folder-tree-row.active .folder-tree-actions {
+        opacity: 1;
+      }
+      @media (max-width: 680px) {
+        .folder-tree-actions { opacity: 1; }
+      }
+      .folder-tree-action-btn {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        border: 1px solid var(--glass-border-ice);
+        background: var(--glass-surface);
+        color: var(--text-muted);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 0.6rem;
+        transition: var(--transition);
+      }
+      .folder-tree-action-btn:hover {
+        background: var(--primary);
+        color: #fff;
+        border-color: var(--primary);
+      }
+      .folder-tree-action-btn.danger:hover {
+        background: #ef4444;
+        border-color: #ef4444;
+      }
+
       .folder-tree-empty {
         padding: 22px 12px;
         text-align: center;
@@ -786,7 +825,372 @@
         margin-top: 10px;
       }
 
-      /* BALANCED 4-ITEM FLOATING DOCK (CLEAN, NO OVERLAYS) */
+      /* =========================================================
+         ===== 本地历史面板（全面升级） =====
+         ========================================================= */
+      .history-stats-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+        padding: 10px 14px;
+        margin-bottom: 12px;
+        border-radius: var(--radius-md);
+        background: var(--primary-surface);
+        border: 1px solid var(--glass-border-ice);
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-sub);
+      }
+      .history-stat-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .history-stat-item i {
+        color: var(--primary);
+        font-size: 0.75rem;
+      }
+      .history-stat-item strong {
+        color: var(--primary-dark);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.84rem;
+      }
+      html[data-theme="dark"] .history-stat-item strong { color: var(--primary-light); }
+
+      .history-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+      }
+      .history-search-box {
+        flex: 1;
+        min-width: 140px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 12px;
+        border-radius: var(--radius-pill);
+        background: var(--glass-subtle);
+        border: 1.5px solid var(--glass-border-ice);
+        transition: var(--transition);
+      }
+      .history-search-box:focus-within {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+      }
+      .history-search-box > i {
+        color: var(--text-muted);
+        font-size: 0.78rem;
+        flex-shrink: 0;
+      }
+      .history-search-box input {
+        flex: 1;
+        min-width: 0;
+        border: none;
+        background: transparent;
+        outline: none;
+        color: var(--text-main);
+        font-size: 0.84rem;
+        font-family: inherit;
+      }
+      .history-search-box input::placeholder { color: var(--text-muted); }
+      .history-search-clear {
+        cursor: pointer;
+        color: var(--text-muted);
+        font-size: 0.78rem;
+        transition: var(--transition);
+        flex-shrink: 0;
+      }
+      .history-search-clear:hover { color: #ef4444; }
+
+      .history-sort-select {
+        padding: 7px 12px;
+        border-radius: var(--radius-pill);
+        border: 1.5px solid var(--glass-border-ice);
+        background: var(--glass-subtle);
+        color: var(--text-sub);
+        font-size: 0.78rem;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        outline: none;
+        transition: var(--transition);
+      }
+      .history-sort-select:hover { border-color: var(--primary-light); }
+
+      .history-view-toggle {
+        display: inline-flex;
+        padding: 3px;
+        gap: 2px;
+        border-radius: var(--radius-pill);
+        border: 1.5px solid var(--glass-border-ice);
+        background: var(--glass-subtle);
+        flex-shrink: 0;
+      }
+      .history-view-toggle button {
+        width: 28px;
+        height: 24px;
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        border-radius: var(--radius-pill);
+        cursor: pointer;
+        font-size: 0.7rem;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .history-view-toggle button.active {
+        background: var(--primary);
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+      }
+
+      .history-batch-bar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        padding: 8px 10px;
+        margin-bottom: 8px;
+        border-radius: var(--radius-md);
+        background: var(--glass-subtle);
+        border: 1px solid var(--glass-border);
+        font-size: 0.76rem;
+      }
+      .history-batch-bar .batch-info {
+        font-weight: 700;
+        color: var(--text-muted);
+        margin-right: auto;
+      }
+      .history-batch-bar .batch-info.has-selection { color: var(--primary); }
+
+      .history-group { margin-bottom: 4px; }
+      .history-group-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        letter-spacing: 0.04em;
+        margin: 14px 0 8px;
+      }
+      .history-group-label i { color: var(--primary); font-size: 0.7rem; }
+      .history-group-label::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--glass-border-ice);
+      }
+
+      /* 网格视图 */
+      .history-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+        gap: 8px;
+      }
+      .history-grid-card {
+        position: relative;
+        border-radius: var(--radius-md);
+        border: 1.5px solid var(--glass-border);
+        background: var(--glass-subtle);
+        overflow: hidden;
+        transition: var(--transition);
+        cursor: pointer;
+      }
+      .history-grid-card:hover {
+        border-color: var(--primary-light);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(2, 132, 199, 0.16);
+      }
+      .history-grid-card.is-selected {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.22);
+      }
+      .history-card-check {
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        z-index: 3;
+        width: 15px;
+        height: 15px;
+        accent-color: var(--primary);
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.18s ease;
+      }
+      .history-grid-card:hover .history-card-check,
+      .history-grid-card.is-selected .history-card-check { opacity: 1; }
+      @media (max-width: 680px) { .history-card-check { opacity: 1; } }
+
+      .history-thumb {
+        width: 100%;
+        height: 86px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--glass-surface);
+        color: var(--primary);
+        font-size: 1.5rem;
+        overflow: hidden;
+      }
+      .history-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .history-grid-name {
+        padding: 5px 7px;
+        font-size: 0.68rem;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: var(--text-sub);
+        border-top: 1px solid var(--glass-border);
+        text-align: center;
+      }
+      .history-grid-actions {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        display: flex;
+        gap: 3px;
+        opacity: 0;
+        transition: opacity 0.18s ease;
+        z-index: 2;
+      }
+      .history-grid-card:hover .history-grid-actions,
+      .history-grid-card.is-selected .history-grid-actions { opacity: 1; }
+      @media (max-width: 680px) { .history-grid-actions { opacity: 1; } }
+
+      .history-mini-btn {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.58rem;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+      .history-mini-btn:hover {
+        background: var(--primary);
+        border-color: var(--primary);
+        transform: scale(1.08);
+      }
+      .history-mini-btn.danger:hover {
+        background: #ef4444;
+        border-color: #ef4444;
+      }
+
+      /* 列表视图 */
+      .history-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .history-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--glass-border);
+        background: var(--glass-subtle);
+        transition: var(--transition);
+      }
+      .history-row:hover {
+        border-color: var(--primary-light);
+        background: var(--glass-surface);
+      }
+      .history-row.is-selected {
+        border-color: var(--primary);
+        background: var(--primary-surface);
+      }
+      .history-row-thumb {
+        width: 38px;
+        height: 38px;
+        border-radius: 9px;
+        flex-shrink: 0;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--glass-surface);
+        border: 1px solid var(--glass-border-ice);
+        color: var(--primary);
+        font-size: 1rem;
+        cursor: pointer;
+      }
+      .history-row-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .history-row-info { flex: 1; min-width: 0; }
+      .history-row-name {
+        font-size: 0.82rem;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .history-row-meta {
+        font-size: 0.67rem;
+        color: var(--text-muted);
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 2px;
+      }
+      .history-row-actions {
+        display: flex;
+        gap: 4px;
+        flex-shrink: 0;
+      }
+      .history-row-actions .mini-icon-btn {
+        width: 27px;
+        height: 27px;
+        font-size: 0.68rem;
+        border-radius: 7px;
+      }
+      @media (max-width: 680px) {
+        .history-row-actions { flex-wrap: wrap; max-width: 66px; justify-content: flex-end; }
+      }
+
+      .history-empty {
+        padding: 38px 16px;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        line-height: 1.5;
+      }
+      .history-empty i {
+        font-size: 1.8rem;
+        opacity: 0.4;
+      }
+
+      /* ===== 历史面板样式结束 ===== */
+
       .bottom-floating-dock {
         position: fixed;
         bottom: max(16px, env(safe-area-inset-bottom, 16px));
@@ -884,7 +1288,6 @@
         margin: -4px auto 16px;
       }
 
-      /* Horizontal scrolling drawer tab bar */
       .drawer-tabs-nav {
         display: flex !important;
         flex-direction: row !important;
@@ -1074,6 +1477,7 @@
         .quick-action-strip { grid-template-columns: repeat(2, 1fr); gap: 8px; }
         .storage-cards-grid { grid-template-columns: 1fr; }
         .bottom-floating-dock { width: calc(100% - 20px); }
+        .history-grid { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); }
       }
     </style>
   </head>
@@ -1092,8 +1496,8 @@
             <img src="/logo.png" alt="Logo" onerror="this.onerror=null;this.src='/favicon.ico';">
           </div>
           <div class="brand-text-wrap">
-            <h1>K-Vault</h1>
-            <span>LIQUID STORAGE</span>
+            <h1>一云</h1>
+            <span>By K-Vault</span>
           </div>
         </div>
 
@@ -1150,7 +1554,6 @@
             <i class="fas fa-folder-open"></i>
             <span>选择文件</span>
           </button>
-          <!-- Changed to 图片浏览 linking directly to gallery -->
           <a href="./gallery.html" class="action-pill-btn">
             <i class="fas fa-images"></i>
             <span>图片浏览</span>
@@ -1298,27 +1701,20 @@
         </section>
       </main>
 
-      <!-- UNIFIED 4-ITEM FLOATING BOTTOM DOCK (No overlapping orbs) -->
+      <!-- UNIFIED 4-ITEM FLOATING BOTTOM DOCK -->
       <nav class="bottom-floating-dock">
-        <!-- 1. 主控台/上传 -->
         <button class="dock-pill-btn" :class="{ active: !showDrawer }" @click="showDrawer = false">
           <i class="fas fa-cloud-arrow-up"></i>
           <span>主控台</span>
         </button>
-
-        <!-- 2. 存储节点 -->
         <button class="dock-pill-btn" @click="openDrawer('storage')" :class="{ active: showDrawer && activeDrawerTab === 'storage' }">
           <i :class="getStorageIcon(storageMode)"></i>
           <span>存储节点</span>
         </button>
-
-        <!-- 3. 上传目录 -->
         <button class="dock-pill-btn" @click="openDrawer('folder')" :class="{ active: showDrawer && activeDrawerTab === 'folder' }">
           <i class="fas fa-folder-tree"></i>
           <span>目录路径</span>
         </button>
-
-        <!-- 4. 更多拓展 -->
         <button class="dock-pill-btn" @click="openMoreDrawer" :class="{ active: showDrawer && isMoreTabActive }">
           <i class="fas fa-layer-group"></i>
           <span>更多功能</span>
@@ -1362,12 +1758,7 @@
             </div>
 
             <div class="storage-cards-grid">
-              <!-- Telegram Node -->
-              <div
-                class="storage-node-card"
-                :class="{ active: storageMode === 'telegram' }"
-                @click="setStorageMode('telegram')"
-              >
+              <div class="storage-node-card" :class="{ active: storageMode === 'telegram' }" @click="setStorageMode('telegram')">
                 <i class="fab fa-telegram" style="font-size: 1.7rem; color: #0284c7;"></i>
                 <div>
                   <div class="storage-node-title">Telegram 频道</div>
@@ -1375,14 +1766,7 @@
                 </div>
                 <div class="storage-check-circle" v-if="storageMode === 'telegram'"><i class="fas fa-check"></i></div>
               </div>
-
-              <!-- Cloudflare R2 Node -->
-              <div
-                class="storage-node-card"
-                v-if="!isGuest"
-                :class="{ active: storageMode === 'r2', disabled: !isStorageAvailable('r2') }"
-                @click="setStorageMode('r2')"
-              >
+              <div class="storage-node-card" v-if="!isGuest" :class="{ active: storageMode === 'r2', disabled: !isStorageAvailable('r2') }" @click="setStorageMode('r2')">
                 <i class="fas fa-cloud" style="font-size: 1.7rem; color: #f6821f;"></i>
                 <div>
                   <div class="storage-node-title">Cloudflare R2</div>
@@ -1391,14 +1775,7 @@
                 </div>
                 <div class="storage-check-circle" v-if="storageMode === 'r2'"><i class="fas fa-check"></i></div>
               </div>
-
-              <!-- Amazon S3 Node -->
-              <div
-                class="storage-node-card"
-                v-if="!isGuest"
-                :class="{ active: storageMode === 's3', disabled: !isStorageAvailable('s3') }"
-                @click="setStorageMode('s3')"
-              >
+              <div class="storage-node-card" v-if="!isGuest" :class="{ active: storageMode === 's3', disabled: !isStorageAvailable('s3') }" @click="setStorageMode('s3')">
                 <i class="fas fa-database" style="font-size: 1.7rem; color: #10b981;"></i>
                 <div>
                   <div class="storage-node-title">Amazon S3</div>
@@ -1407,14 +1784,7 @@
                 </div>
                 <div class="storage-check-circle" v-if="storageMode === 's3'"><i class="fas fa-check"></i></div>
               </div>
-
-              <!-- Discord Node -->
-              <div
-                class="storage-node-card"
-                v-if="!isGuest"
-                :class="{ active: storageMode === 'discord', disabled: !isStorageAvailable('discord') }"
-                @click="setStorageMode('discord')"
-              >
+              <div class="storage-node-card" v-if="!isGuest" :class="{ active: storageMode === 'discord', disabled: !isStorageAvailable('discord') }" @click="setStorageMode('discord')">
                 <i class="fab fa-discord" style="font-size: 1.7rem; color: #6366f1;"></i>
                 <div>
                   <div class="storage-node-title">Discord 频道</div>
@@ -1423,14 +1793,7 @@
                 </div>
                 <div class="storage-check-circle" v-if="storageMode === 'discord'"><i class="fas fa-check"></i></div>
               </div>
-
-              <!-- HuggingFace Node -->
-              <div
-                class="storage-node-card"
-                v-if="!isGuest"
-                :class="{ active: storageMode === 'huggingface', disabled: !isStorageAvailable('huggingface') }"
-                @click="setStorageMode('huggingface')"
-              >
+              <div class="storage-node-card" v-if="!isGuest" :class="{ active: storageMode === 'huggingface', disabled: !isStorageAvailable('huggingface') }" @click="setStorageMode('huggingface')">
                 <i class="fas fa-robot" style="font-size: 1.7rem; color: #ec4899;"></i>
                 <div>
                   <div class="storage-node-title">HuggingFace</div>
@@ -1439,14 +1802,7 @@
                 </div>
                 <div class="storage-check-circle" v-if="storageMode === 'huggingface'"><i class="fas fa-check"></i></div>
               </div>
-
-              <!-- GitHub Node -->
-              <div
-                class="storage-node-card"
-                v-if="!isGuest"
-                :class="{ active: storageMode === 'github', disabled: !isStorageAvailable('github') }"
-                @click="setStorageMode('github')"
-              >
+              <div class="storage-node-card" v-if="!isGuest" :class="{ active: storageMode === 'github', disabled: !isStorageAvailable('github') }" @click="setStorageMode('github')">
                 <i class="fab fa-github" style="font-size: 1.7rem; color: #334155;"></i>
                 <div>
                   <div class="storage-node-title">GitHub Releases</div>
@@ -1458,9 +1814,8 @@
             </div>
           </div>
 
-          <!-- ================= Drawer Tab 2: Target Upload Folder (Real Directory Tree + Memory) ================= -->
+          <!-- ================= Drawer Tab 2: Target Upload Folder ================= -->
           <div v-if="activeDrawerTab === 'folder'">
-            <!-- 当前路径面包屑 -->
             <div class="folder-current-bar">
               <div class="folder-breadcrumb">
                 <span class="folder-crumb" @click="selectUploadFolder('')">
@@ -1477,7 +1832,6 @@
               </button>
             </div>
 
-            <!-- 手动路径输入 -->
             <div class="folder-pill-bar">
               <i class="fas fa-folder-open" style="color: var(--primary); font-size: 0.9rem;"></i>
               <input
@@ -1491,7 +1845,6 @@
               <button class="folder-pill-btn primary" @click="openUploadFolderCreator" :disabled="isGuest">新建</button>
             </div>
 
-            <!-- New Folder Creator Pill Bar -->
             <div class="folder-pill-bar" v-if="showUploadFolderCreator">
               <i class="fas fa-folder-plus" style="color: var(--primary); font-size: 0.9rem;"></i>
               <input
@@ -1505,25 +1858,6 @@
               <button class="folder-pill-btn" @click="cancelUploadFolderCreator">取消</button>
             </div>
 
-            <!-- 最近使用（记忆） -->
-            <div v-if="recentFolders.length">
-              <div class="folder-section-label">
-                <i class="fas fa-clock-rotate-left"></i>
-                <span>最近使用</span>
-              </div>
-              <div class="folder-chips-row">
-                <button
-                  class="format-chip-btn"
-                  v-for="p in recentFolders"
-                  :key="'recent-' + p"
-                  :class="{ active: p === folderPath }"
-                  @click="selectUploadFolder(p)"
-                >
-                  {{ p }}
-                </button>
-              </div>
-            </div>
-
             <!-- 真实目录结构树 -->
             <div class="folder-section-label">
               <i class="fas fa-sitemap"></i>
@@ -1532,7 +1866,6 @@
             </div>
 
             <div class="folder-tree-panel">
-              <!-- 根节点 -->
               <div
                 class="folder-tree-row"
                 :class="{ active: !folderPath }"
@@ -1544,7 +1877,7 @@
                 <span class="folder-tree-name">根目录</span>
               </div>
 
-              <!-- 递归子节点 -->
+              <!-- 递归子节点组件 -->
               <folder-node
                 v-for="node in uploadFolderTree.children"
                 :key="node.path"
@@ -1554,6 +1887,8 @@
                 :expanded="expandedFolders"
                 @select="selectUploadFolder"
                 @toggle="toggleFolderExpand"
+                @rename="handleRenameFolder"
+                @delete="handleDeleteFolder"
               ></folder-node>
 
               <div class="folder-tree-empty" v-if="uploadFoldersLoading && !uploadFolderTree.children.length">
@@ -1574,20 +1909,13 @@
                 <div style="font-weight: 700;">智能图像压缩转换</div>
                 <div style="font-size: 0.78rem; color: var(--text-muted);">减少文件体积，加快直链与多端加载速度</div>
               </div>
-              <input
-                type="checkbox"
-                v-model="imageCompress.enabled"
-                @change="handleImageCompressToggle"
-                style="width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer;"
-              />
+              <input type="checkbox" v-model="imageCompress.enabled" @change="handleImageCompressToggle" style="width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer;" />
             </div>
-
             <div style="display: flex; gap: 8px; margin-bottom: 14px;">
               <button class="format-chip-btn" :class="{ active: imageUploadDecision === 'original' }" @click="setImageUploadDecision('original')">原图上传</button>
               <button class="format-chip-btn" :class="{ active: imageUploadDecision === 'optimized' }" @click="setImageUploadDecision('optimized')">自动压缩转换</button>
               <button class="format-chip-btn" :class="{ active: imageUploadDecision === 'ask' }" @click="setImageUploadDecision('ask')">上传前询问</button>
             </div>
-
             <div v-if="imageCompressPanelExpanded" style="display: flex; flex-direction: column; gap: 14px;">
               <div style="display: flex; gap: 8px;">
                 <button
@@ -1601,79 +1929,195 @@
                   {{ fmt.label }}
                 </button>
               </div>
-
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-size: 0.85rem; font-weight: 600;">压缩质量：{{ imageCompress.quality }}%</span>
-                <input
-                  type="range"
-                  min="30"
-                  max="95"
-                  step="1"
-                  v-model.number="imageCompress.quality"
-                  @change="saveImageCompressSettings"
-                  style="width: 150px; accent-color: var(--primary);"
-                />
+                <input type="range" min="30" max="95" step="1" v-model.number="imageCompress.quality" @change="saveImageCompressSettings" style="width: 150px; accent-color: var(--primary);" />
               </div>
-
               <label style="display: flex; align-items: center; gap: 8px; font-size: 0.84rem; cursor: pointer;">
-                <input
-                  type="checkbox"
-                  v-model="imageCompress.keepOriginalWhenLarger"
-                  @change="saveImageCompressSettings"
-                  style="accent-color: var(--primary);"
-                />
+                <input type="checkbox" v-model="imageCompress.keepOriginalWhenLarger" @change="saveImageCompressSettings" style="accent-color: var(--primary);" />
                 <span>压缩后体积更大时自动保留原图</span>
               </label>
             </div>
           </div>
 
-          <!-- Drawer Tab 4: Local History Vault -->
+          <!-- ============================================================
+               Drawer Tab 4: Local History Vault（全面升级版）
+               ============================================================ -->
           <div v-if="activeDrawerTab === 'history'">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-              <span style="font-size: 0.86rem; font-weight: 700;">本地上传历史 ({{ uploadHistory.length }})</span>
-              <div style="display: flex; gap: 6px;">
-                <button class="action-pill-btn" style="padding: 4px 10px; font-size: 0.76rem;" @click="copySelectedHistoryLinks">复制全部</button>
-                <button class="action-pill-btn" style="padding: 4px 10px; font-size: 0.76rem;" @click="clearHistory">清空</button>
+            <!-- 顶部统计 -->
+            <div class="history-stats-bar">
+              <span class="history-stat-item">
+                <i class="fas fa-clock-rotate-left"></i>
+                <span>共 <strong>{{ historyStats.count }}</strong> 条</span>
+              </span>
+              <span class="history-stat-item">
+                <i class="fas fa-database"></i>
+                <span>累计 <strong>{{ formatSize(historyStats.totalSize) }}</strong></span>
+              </span>
+              <span class="history-stat-item">
+                <i class="fas fa-filter"></i>
+                <span>当前显示 <strong>{{ historySorted.length }}</strong> 条</span>
+              </span>
+            </div>
+
+            <!-- 搜索 / 排序 / 视图切换 -->
+            <div class="history-toolbar">
+              <div class="history-search-box">
+                <i class="fas fa-magnifying-glass"></i>
+                <input type="text" v-model="historySearch" placeholder="搜索文件名或链接..." />
+                <i class="fas fa-circle-xmark history-search-clear" v-if="historySearch" @click="historySearch = ''"></i>
+              </div>
+              <select class="history-sort-select" v-model="historySort">
+                <option value="time-desc">最新优先</option>
+                <option value="time-asc">最早优先</option>
+                <option value="name-asc">名称 A → Z</option>
+                <option value="size-desc">体积由大到小</option>
+              </select>
+              <div class="history-view-toggle">
+                <button :class="{ active: historyView === 'grid' }" @click="historyView = 'grid'" title="网格视图">
+                  <i class="fas fa-grip"></i>
+                </button>
+                <button :class="{ active: historyView === 'list' }" @click="historyView = 'list'" title="列表视图">
+                  <i class="fas fa-list"></i>
+                </button>
               </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; max-height: 280px; overflow-y: auto;">
-              <div
-                class="task-thumb-img"
-                style="width: 100%; height: 80px; position: relative; cursor: pointer;"
-                v-for="(item, hIdx) in uploadHistory"
-                :key="hIdx"
-                @click="openPreview(item)"
+            <!-- 类型筛选 -->
+            <div class="format-tabs-row">
+              <button
+                class="format-chip-btn"
+                v-for="tab in historyTypeTabs"
+                :key="tab.value"
+                :class="{ active: historyTypeFilter === tab.value }"
+                @click="historyTypeFilter = tab.value"
               >
-                <img v-if="isImageFile(getDisplayName(item)) && !item._imgError" :src="getCleanFileUrl(item)" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;" @error="handleHistoryImgError($event, item)" />
-                <i v-else :class="getFileIcon(getDisplayName(item))"></i>
+                {{ tab.label }} ({{ historyTypeCounts[tab.value] }})
+              </button>
+            </div>
+
+            <!-- 批量操作栏 -->
+            <div class="history-batch-bar">
+              <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 700;">
+                <input type="checkbox" :checked="historyAllSelected" @change="toggleHistorySelectAll" style="accent-color: var(--primary); cursor: pointer;" />
+                <span>全选</span>
+              </label>
+              <span class="batch-info" :class="{ 'has-selection': historySelectedCount > 0 }">
+                {{ historySelectedCount > 0 ? `已选 ${historySelectedCount} 项` : '未选择' }}
+              </span>
+              <button class="action-pill-btn" style="padding: 4px 10px; font-size: 0.74rem;" @click="copyHistorySelected" :disabled="!historySelectedCount">
+                <i class="fas fa-copy"></i> 复制链接
+              </button>
+              <button class="action-pill-btn" style="padding: 4px 10px; font-size: 0.74rem;" @click="addHistorySelectedToResults" :disabled="!historySelectedCount">
+                <i class="fas fa-plus"></i> 加入结果
+              </button>
+              <button class="action-pill-btn" style="padding: 4px 10px; font-size: 0.74rem; color: #ef4444;" @click="deleteHistorySelected" :disabled="!historySelectedCount">
+                <i class="fas fa-trash"></i> 删除
+              </button>
+              <button class="action-pill-btn" style="padding: 4px 10px; font-size: 0.74rem;" @click="exportHistory" :disabled="!historySorted.length">
+                <i class="fas fa-file-export"></i> 导出
+              </button>
+              <button class="action-pill-btn" style="padding: 4px 10px; font-size: 0.74rem; color: #ef4444;" @click="clearHistory" :disabled="!uploadHistory.length">
+                <i class="fas fa-broom"></i> 清空
+              </button>
+            </div>
+
+            <!-- 历史内容区 -->
+            <div v-if="historySorted.length">
+              <div class="history-group" v-for="(group, gIdx) in historyGroups" :key="'group-' + gIdx">
+                <div class="history-group-label" v-if="group.label">
+                  <i class="fas fa-calendar-day"></i>
+                  <span>{{ group.label }}</span>
+                </div>
+
+                <!-- 网格视图 -->
+                <div class="history-grid" v-if="historyView === 'grid'">
+                  <div
+                    class="history-grid-card"
+                    v-for="item in group.items"
+                    :key="item.id"
+                    :class="{ 'is-selected': item.selected }"
+                    @click="historyPreview(item)"
+                  >
+                    <input type="checkbox" class="history-card-check" v-model="item.selected" @click.stop />
+                    <div class="history-thumb">
+                      <img
+                        v-if="isImageFile(getDisplayName(item)) && !item._imgError"
+                        :src="getCleanFileUrl(item)"
+                        @error="handleHistoryImgError($event, item)"
+                      />
+                      <i v-else :class="getFileIcon(getDisplayName(item))"></i>
+                    </div>
+                    <div class="history-grid-name" :title="getDisplayName(item)">{{ getDisplayName(item) }}</div>
+                    <div class="history-grid-actions">
+                      <button class="history-mini-btn" @click.stop="historyCopyLink(item)" title="复制直链"><i class="fas fa-copy"></i></button>
+                      <button class="history-mini-btn" @click.stop="historyDownload(item)" title="下载"><i class="fas fa-download"></i></button>
+                      <button class="history-mini-btn danger" @click.stop="historyDelete(item)" title="删除"><i class="fas fa-xmark"></i></button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 列表视图 -->
+                <div class="history-list" v-else>
+                  <div
+                    class="history-row"
+                    v-for="item in group.items"
+                    :key="item.id"
+                    :class="{ 'is-selected': item.selected }"
+                  >
+                    <input type="checkbox" v-model="item.selected" style="accent-color: var(--primary); cursor: pointer; flex-shrink: 0;" />
+                    <div class="history-row-thumb" @click="historyPreview(item)">
+                      <img
+                        v-if="isImageFile(getDisplayName(item)) && !item._imgError"
+                        :src="getCleanFileUrl(item)"
+                        @error="handleHistoryImgError($event, item)"
+                      />
+                      <i v-else :class="getFileIcon(getDisplayName(item))"></i>
+                    </div>
+                    <div class="history-row-info">
+                      <div class="history-row-name" :title="getDisplayName(item)">{{ getDisplayName(item) }}</div>
+                      <div class="history-row-meta">
+                        <span>{{ formatSize(item.size) }}</span>
+                        <span>{{ formatHistoryTime(item.uploadTime) }}</span>
+                        <span v-if="item.storageMode">{{ storageLabel(item.storageMode) }}</span>
+                        <span v-if="item.folderPath">/{{ item.folderPath }}</span>
+                      </div>
+                    </div>
+                    <div class="history-row-actions">
+                      <button class="mini-icon-btn" @click="historyCopyLink(item)" title="复制直链"><i class="fas fa-copy"></i></button>
+                      <button class="mini-icon-btn" @click="historyPreview(item)" title="预览"><i class="fas fa-eye"></i></button>
+                      <button class="mini-icon-btn" @click="historyDownload(item)" title="下载"><i class="fas fa-download"></i></button>
+                      <button class="mini-icon-btn danger" @click="historyDelete(item)" title="删除"><i class="fas fa-xmark"></i></button>
+                    </div>
+                  </div>
+                </div>
               </div>
+            </div>
+
+            <div class="history-empty" v-else>
+              <i class="fas fa-clock-rotate-left"></i>
+              <span v-if="uploadHistory.length">没有匹配的历史记录，试试调整搜索关键词或筛选条件</span>
+              <span v-else>暂无本地上传历史，上传文件后将自动记录在此</span>
             </div>
           </div>
 
           <!-- Drawer Tab 5: System Navigation & Account Links -->
           <div v-if="activeDrawerTab === 'menu'" style="display: flex; flex-direction: column; gap: 10px;">
             <a href="./gallery.html" v-if="!isGuest" class="action-pill-btn" style="justify-content: flex-start;">
-              <i class="fas fa-images"></i>
-              <span>图片画廊浏览</span>
+              <i class="fas fa-images"></i><span>图片画廊浏览</span>
             </a>
             <a href="./admin.html" v-if="!isGuest" class="action-pill-btn" style="justify-content: flex-start;">
-              <i class="fas fa-sliders"></i>
-              <span>管理后台</span>
+              <i class="fas fa-sliders"></i><span>管理后台</span>
             </a>
             <a href="./webdav.html" v-if="!isGuest" class="action-pill-btn" style="justify-content: flex-start;">
-              <i class="fas fa-hard-drive"></i>
-              <span>WebDAV 服务</span>
+              <i class="fas fa-hard-drive"></i><span>WebDAV 服务</span>
             </a>
-
             <button class="action-pill-btn" style="justify-content: flex-start;" @click="toggleLiquidTheme">
               <i :class="currentTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon'"></i>
               <span>切换外观主题 ({{ currentTheme === 'dark' ? '深色' : '浅蓝' }})</span>
             </button>
-
             <button v-if="isAuthenticated" class="action-pill-btn" style="justify-content: flex-start; color: #ef4444;" @click="handleLogout">
-              <i class="fas fa-arrow-right-from-bracket"></i>
-              <span>退出登录</span>
+              <i class="fas fa-arrow-right-from-bracket"></i><span>退出登录</span>
             </button>
           </div>
         </div>
@@ -1701,11 +2145,12 @@
       </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+    <!-- 更换为国内加速 CDN，解决部分网络无法加载问题 -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.14/vue.min.js"></script>
     <script>
       const LOCAL_PREVIEW_PAGE = "/preview.html";
 
-      /* ===== 递归目录树节点组件（新增，仅服务于目录功能） ===== */
+      /* ===== 递归目录树节点组件（集成重命名/删除及文件数显示） ===== */
       Vue.component("folder-node", {
         name: "folder-node",
         props: {
@@ -1731,6 +2176,14 @@
             if (!this.hasChildren) return;
             this.$emit("toggle", this.node.path);
           },
+          onRename(e) {
+            e.stopPropagation();
+            this.$emit("rename", this.node);
+          },
+          onDelete(e) {
+            e.stopPropagation();
+            this.$emit("delete", this.node);
+          }
         },
         template: `
           <div class="folder-tree-branch">
@@ -1745,7 +2198,12 @@
               </span>
               <i class="fas folder-tree-icon" :class="hasChildren && isExpanded ? 'fa-folder-open' : 'fa-folder'"></i>
               <span class="folder-tree-name">{{ node.name }}</span>
-              <span class="folder-tree-count" v-if="hasChildren">{{ node.children.length }}</span>
+              <span class="folder-tree-count" v-if="node.fileCount > 0">{{ node.fileCount }} 文件</span>
+
+              <div class="folder-tree-actions">
+                <button class="folder-tree-action-btn" @click="onRename" title="重命名"><i class="fas fa-pen"></i></button>
+                <button class="folder-tree-action-btn danger" @click="onDelete" title="删除"><i class="fas fa-trash"></i></button>
+              </div>
             </div>
             <div class="folder-tree-children" v-if="hasChildren && isExpanded">
               <folder-node
@@ -1757,6 +2215,8 @@
                 :expanded="expanded"
                 @select="$emit('select', $event)"
                 @toggle="$emit('toggle', $event)"
+                @rename="$emit('rename', $event)"
+                @delete="$emit('delete', $event)"
               ></folder-node>
             </div>
           </div>
@@ -1800,9 +2260,7 @@
           showUploadFolderCreator: false,
           newUploadFolderPath: "",
           uploadFolderCreating: false,
-          /* ===== 目录记忆相关（新增） ===== */
           expandedFolders: {},
-          recentFolders: [],
           storageMode: "telegram",
           storageTarget: "Telegram 频道",
           r2Available: false,
@@ -1820,6 +2278,21 @@
             maxConcurrent: 3,
           },
           uploadLimits: {},
+
+          /* ===== 本地历史面板状态 ===== */
+          historySearch: "",
+          historySort: "time-desc",
+          historyView: "grid",
+          historyTypeFilter: "all",
+          historyMaxItems: 500,
+          historyTypeTabs: [
+            { value: "all", label: "全部" },
+            { value: "image", label: "图片" },
+            { value: "video", label: "视频" },
+            { value: "audio", label: "音频" },
+            { value: "doc", label: "文档" },
+            { value: "other", label: "其他" },
+          ],
         },
         computed: {
           selectedCount() {
@@ -1856,7 +2329,6 @@
             });
             return out;
           },
-          /* ===== 真实目录树（新增）：由扁平路径列表构建层级结构 ===== */
           uploadFolderTree() {
             const root = { name: "", path: "", children: [] };
             const map = { "": root };
@@ -1868,11 +2340,14 @@
               parts.forEach((part) => {
                 cur = cur ? `${cur}/${part}` : part;
                 if (!map[cur]) {
-                  map[cur] = { name: part, path: cur, children: [] };
+                  map[cur] = { name: part, path: cur, children: [], fileCount: 0 };
                   parent.children.push(map[cur]);
                 }
                 parent = map[cur];
               });
+              if (map[cur]) {
+                map[cur].fileCount = folder.fileCount || 0;
+              }
             });
 
             const sortRec = (node) => {
@@ -1882,7 +2357,6 @@
             sortRec(root);
             return root;
           },
-          /* 当前路径的分段，用于面包屑 */
           folderPathSegments() {
             return this.folderPath.split("/").filter(Boolean);
           },
@@ -1894,18 +2368,102 @@
                 : (limit.maxBytes || this.uploadConfig.maxSize);
             return this.formatSize(maxBytes);
           },
+
+          /* ===== 本地历史计算属性 ===== */
+          historyStats() {
+            const list = this.uploadHistory || [];
+            const totalSize = list.reduce((sum, it) => sum + (Number(it.size) || 0), 0);
+            return { count: list.length, totalSize };
+          },
+          historyTypeCounts() {
+            const counts = { all: this.uploadHistory.length, image: 0, video: 0, audio: 0, doc: 0, other: 0 };
+            this.uploadHistory.forEach((it) => {
+              const cat = this.getFileCategory(this.getDisplayName(it));
+              if (counts[cat] === undefined) counts[cat] = 0;
+              counts[cat]++;
+            });
+            return counts;
+          },
+          historyFiltered() {
+            const kw = (this.historySearch || "").trim().toLowerCase();
+            let list = this.uploadHistory.slice();
+            if (kw) {
+              list = list.filter((it) => {
+                const name = String(this.getDisplayName(it) || "").toLowerCase();
+                const url = String(it.url || "").toLowerCase();
+                return name.includes(kw) || url.includes(kw);
+              });
+            }
+            if (this.historyTypeFilter !== "all") {
+              list = list.filter(
+                (it) => this.getFileCategory(this.getDisplayName(it)) === this.historyTypeFilter
+              );
+            }
+            return list;
+          },
+          historySorted() {
+            const arr = this.historyFiltered.slice();
+            switch (this.historySort) {
+              case "time-asc":
+                arr.sort((a, b) => (a.uploadTime || 0) - (b.uploadTime || 0));
+                break;
+              case "name-asc":
+                arr.sort((a, b) =>
+                  String(this.getDisplayName(a)).localeCompare(String(this.getDisplayName(b)), "zh-CN")
+                );
+                break;
+              case "size-desc":
+                arr.sort((a, b) => (b.size || 0) - (a.size || 0));
+                break;
+              case "time-desc":
+              default:
+                arr.sort((a, b) => (b.uploadTime || 0) - (a.uploadTime || 0));
+                break;
+            }
+            return arr;
+          },
+          historyGroups() {
+            const list = this.historySorted;
+            if (!this.historySort.startsWith("time")) {
+              return [{ label: "", items: list }];
+            }
+            const dayMs = 86400000;
+            const now = new Date();
+            const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const defs = [
+              { label: "今天", from: startOfToday, to: Infinity },
+              { label: "昨天", from: startOfToday - dayMs, to: startOfToday },
+              { label: "最近 7 天", from: startOfToday - 7 * dayMs, to: startOfToday - dayMs },
+              { label: "最近 30 天", from: startOfToday - 30 * dayMs, to: startOfToday - 7 * dayMs },
+              { label: "更早", from: 0, to: startOfToday - 30 * dayMs },
+            ];
+            const groups = [];
+            defs.forEach((def) => {
+              const items = list.filter((it) => {
+                const t = it.uploadTime || 0;
+                return t >= def.from && t < def.to;
+              });
+              if (items.length) groups.push({ label: def.label, items });
+            });
+            return groups;
+          },
+          historyAllSelected() {
+            const list = this.historySorted;
+            return list.length > 0 && list.every((it) => it.selected);
+          },
+          historySelectedCount() {
+            return this.historySorted.filter((it) => it.selected).length;
+          },
         },
         methods: {
           openDrawer(tab) {
             this.activeDrawerTab = tab;
             this.showDrawer = true;
           },
-
           openMoreDrawer() {
             this.activeDrawerTab = this.lastMoreTab || "compress";
             this.showDrawer = true;
           },
-
           switchDrawerTab(tab) {
             this.activeDrawerTab = tab;
             if (["compress", "history", "menu"].includes(tab)) {
@@ -1915,7 +2473,6 @@
               this.fetchUploadFolders();
             }
           },
-
           getStorageIcon(mode) {
             const map = {
               telegram: "fab fa-telegram",
@@ -1927,7 +2484,6 @@
             };
             return map[mode] || "fas fa-server";
           },
-
           isStorageAvailable(mode) {
             if (mode === "telegram") return true;
             if (mode === "r2") return !!this.r2Available;
@@ -1937,28 +2493,20 @@
             if (mode === "github") return !!this.githubAvailable;
             return false;
           },
-
           toggleLiquidTheme() {
             this.currentTheme = this.currentTheme === "dark" ? "light" : "dark";
             document.documentElement.setAttribute("data-theme", this.currentTheme);
             try { localStorage.setItem("theme", this.currentTheme); } catch (e) {}
           },
-
-          /* ============ 目录功能核心方法（已优化） ============ */
-
           normalizeFolderPath(val) {
             return String(val || "").replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
           },
-
-          /* 持久化当前目录：同时写入全局键与「按存储节点」的键，实现分节点记忆 */
           persistFolderPath() {
             try {
               localStorage.setItem("uploadFolderPath", this.folderPath);
               localStorage.setItem(`uploadFolderPath:${this.storageMode}`, this.folderPath);
             } catch (e) {}
           },
-
-          /* 读取某个存储节点记忆的目录 */
           loadFolderPathForMode(mode) {
             let stored = "";
             try {
@@ -1967,19 +2515,13 @@
             this.folderPath = this.normalizeFolderPath(stored);
             if (this.folderPath) this.autoExpandAncestors(this.folderPath);
           },
-
-          /* 展开状态持久化 */
           persistExpanded() {
             try { localStorage.setItem("folderTreeExpanded", JSON.stringify(this.expandedFolders)); } catch (e) {}
           },
-
-          /* 展开/收起某个目录 */
           toggleFolderExpand(path) {
             this.$set(this.expandedFolders, path, !this.expandedFolders[path]);
             this.persistExpanded();
           },
-
-          /* 自动展开某路径的所有上级目录，保证目标可见 */
           autoExpandAncestors(path) {
             const parts = this.normalizeFolderPath(path).split("/").filter(Boolean);
             let cur = "";
@@ -1989,60 +2531,42 @@
             }
             if (parts.length) this.persistExpanded();
           },
-
-          /* 记录最近使用的目录 */
-          pushRecentFolder(path) {
-            if (!path) return;
-            const list = [path, ...this.recentFolders.filter((p) => p !== path)].slice(0, 6);
-            this.recentFolders = list;
-            try { localStorage.setItem("folderRecent", JSON.stringify(list)); } catch (e) {}
-          },
-
-          /* 面包屑点击：跳转到某一级 */
           folderPathUpTo(index) {
             return this.folderPathSegments.slice(0, index + 1).join("/");
           },
-
           handleFolderPathInput() {
             this.folderPath = this.normalizeFolderPath(this.folderPath);
             this.persistFolderPath();
           },
-
           handleFolderPathBlur() {
             this.folderPath = this.normalizeFolderPath(this.folderPath);
             this.persistFolderPath();
             if (this.folderPath) this.autoExpandAncestors(this.folderPath);
           },
-
           clearFolderPath() {
             this.folderPath = "";
             this.persistFolderPath();
             this.showToast("已设为上传根目录");
           },
-
           selectUploadFolder(p, silent = false) {
             this.folderPath = this.normalizeFolderPath(p);
             this.persistFolderPath();
             if (this.folderPath) {
-              this.pushRecentFolder(this.folderPath);
               this.autoExpandAncestors(this.folderPath);
             }
             if (!silent) {
               this.showToast(`已选择目录：${this.folderPath || "根目录"}`);
             }
           },
-
           openUploadFolderCreator() {
             this.newUploadFolderPath = this.folderPath ? `${this.folderPath}/新目录` : "新目录";
             this.showUploadFolderCreator = true;
             this.$nextTick(() => this.$refs.newFolderInput?.focus?.());
           },
-
           cancelUploadFolderCreator() {
             this.showUploadFolderCreator = false;
             this.newUploadFolderPath = "";
           },
-
           async createUploadFolder() {
             if (!this.newUploadFolderPath.trim()) return;
             this.uploadFolderCreating = true;
@@ -2062,7 +2586,6 @@
 
               await this.fetchUploadFolders(true);
               this.selectUploadFolder(createdPath, true);
-              // 展开刚创建的目录自身，便于继续在其中新建子目录
               this.$set(this.expandedFolders, createdPath, true);
               this.persistExpanded();
 
@@ -2071,6 +2594,60 @@
               this.showToast(err.message, "error");
             } finally {
               this.uploadFolderCreating = false;
+            }
+          },
+
+          /* ===== 目录重命名与删除操作 ===== */
+          async handleRenameFolder(node) {
+            const newPath = window.prompt(`重命名目录：\n"${node.path}"\n\n请输入新路径（包含完整路径）：`, node.path);
+            if (newPath === null) return;
+            const targetPath = this.normalizeFolderPath(newPath);
+            if (!targetPath || targetPath === node.path) {
+              this.showToast("新路径与原路径相同或无效", "error");
+              return;
+            }
+
+            try {
+              const res = await fetch("/api/manage/folders", {
+                method: "PUT",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ sourcePath: node.path, targetPath }),
+              });
+              const data = await res.json();
+              if (!res.ok || !data.success) throw new Error(data.error || "重命名失败");
+
+              this.showToast(`已重命名：${targetPath}`, "success");
+
+              if (this.folderPath === node.path || this.folderPath.startsWith(node.path + "/")) {
+                const suffix = this.folderPath.slice(node.path.length);
+                this.selectUploadFolder(targetPath + suffix, true);
+              }
+              await this.fetchUploadFolders(true);
+            } catch (err) {
+              this.showToast(err.message, "error");
+            }
+          },
+
+          async handleDeleteFolder(node) {
+            if (!window.confirm(`⚠️ 确定要删除目录 "${node.path}" 及其所有子目录和文件吗？\n\n此操作不可撤销！`)) return;
+
+            try {
+              const res = await fetch(`/api/manage/folders?path=${encodeURIComponent(node.path)}&recursive=1`, {
+                method: "DELETE",
+                credentials: "include",
+              });
+              const data = await res.json();
+              if (!res.ok || !data.success) throw new Error(data.error || "删除失败");
+
+              this.showToast(`已删除目录：${node.path}`, "success");
+
+              if (this.folderPath === node.path || this.folderPath.startsWith(node.path + "/")) {
+                this.selectUploadFolder("", true);
+              }
+              await this.fetchUploadFolders(true);
+            } catch (err) {
+              this.showToast(err.message, "error");
             }
           },
 
@@ -2083,7 +2660,7 @@
 
             this.uploadFoldersLoading = true;
             try {
-              const res = await fetch("/api/manage/folders?storage=all", { credentials: "include" });
+              const res = await fetch("/api/manage/folders", { credentials: "include" });
               if (res.ok) {
                 const data = await res.json();
                 this.uploadFolders = data.folders || [];
@@ -2096,18 +2673,15 @@
             }
           },
 
-          /* ============ 目录功能核心方法结束 ============ */
-
+          /* ===== 原有上传功能 ===== */
           triggerUpload() {
             this.$refs.fileInput.click();
           },
-
           handleFileSelect(e) {
             const files = Array.from(e.target.files || []);
             this.processFiles(files);
             e.target.value = "";
           },
-
           onDragOver() { this.isDragging = true; },
           onDragLeave() { this.isDragging = false; },
           onDrop(e) {
@@ -2115,3 +2689,612 @@
             const files = Array.from(e.dataTransfer.files || []);
             this.processFiles(files);
           },
+          async uploadFromUrl() {
+            if (!this.urlToUpload.trim()) return;
+            this.urlUploading = true;
+            try {
+              const res = await fetch(`${this.baseURL}/api/upload-from-url`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  url: this.urlToUpload,
+                  storageMode: this.storageMode,
+                  folderPath: this.folderPath,
+                }),
+                credentials: "include",
+              });
+              const data = await res.json();
+              if (!res.ok) throw new Error(data.error || "转存失败");
+              if (Array.isArray(data) && data[0]?.src) {
+                const fileName = this.urlToUpload.split("/").pop().split("?")[0] || "remote_file";
+                const fileObj = {
+                  name: fileName,
+                  fileName: fileName,
+                  url: `${this.baseURL}${data[0].src}`,
+                  size: 0,
+                  selected: false,
+                };
+                this.uploadedFiles.unshift(fileObj);
+                this.addToHistory(fileObj);
+                this.showToast("URL 转存成功", "success");
+                this.urlToUpload = "";
+                this.showUrlInput = false;
+              }
+            } catch (err) {
+              this.showToast(err.message, "error");
+            } finally {
+              this.urlUploading = false;
+            }
+          },
+          handleImageCompressToggle() {
+            this.imageUploadDecision = this.imageCompress.enabled ? "optimized" : "original";
+            this.saveImageCompressSettings();
+          },
+          setImageUploadDecision(mode) {
+            this.imageUploadDecision = mode;
+            this.imageCompress.enabled = (mode === "optimized");
+            this.saveImageCompressSettings();
+          },
+          selectCompressFormat(fmt) {
+            this.imageCompress.format = fmt;
+            this.saveImageCompressSettings();
+          },
+          saveImageCompressSettings() {
+            try {
+              localStorage.setItem("imageCompressSettings", JSON.stringify(this.imageCompress));
+            } catch (e) {}
+          },
+          isFormatSupported(fmt) {
+            return this.imageCompress.support?.[fmt] !== false;
+          },
+          setStorageMode(mode, silent = false) {
+            const labels = {
+              telegram: "Telegram 频道",
+              r2: "Cloudflare R2",
+              s3: "Amazon S3",
+              discord: "Discord 频道",
+              huggingface: "HuggingFace",
+              github: "GitHub Releases",
+            };
+
+            if (this.isGuest && !["telegram", "r2"].includes(mode)) {
+              this.showToast("访客模式仅支持 Telegram 和 R2 存储", "error");
+              return;
+            }
+            if (!this.isStorageAvailable(mode) && mode !== "telegram") {
+              this.showToast(`${labels[mode] || mode} 未配置或未启用`, "error");
+              return;
+            }
+
+            this.storageMode = mode;
+            this.storageTarget = labels[mode] || "Telegram 频道";
+            try { localStorage.setItem("storageMode", mode); } catch (e) {}
+
+            this.loadFolderPathForMode(mode);
+
+            if (!silent) {
+              this.showToast(`已切换至：${this.storageTarget} (${this.currentUploadLimitLabel})`, "success");
+            }
+          },
+          getUploadLimit(storageMode) {
+            const fallback = {
+              telegram: { maxBytes: 20 * 1024 * 1024, directThreshold: 20 * 1024 * 1024, supportsChunkUpload: false },
+              r2: { maxBytes: 100 * 1024 * 1024, directThreshold: 20 * 1024 * 1024, supportsChunkUpload: true },
+              s3: { maxBytes: 100 * 1024 * 1024, directThreshold: 20 * 1024 * 1024, supportsChunkUpload: true },
+              discord: { maxBytes: 25 * 1024 * 1024, directThreshold: 20 * 1024 * 1024, supportsChunkUpload: true },
+              huggingface: { maxBytes: 35 * 1024 * 1024, directThreshold: 20 * 1024 * 1024, supportsChunkUpload: true },
+              github: { maxBytes: 100 * 1024 * 1024, directThreshold: 20 * 1024 * 1024, supportsChunkUpload: true },
+            };
+            const base = fallback[storageMode] || fallback.telegram;
+            return { ...base, ...(this.uploadLimits?.[storageMode] || {}) };
+          },
+          async processFiles(files) {
+            if (!files || !files.length) return;
+            const limit = this.getUploadLimit(this.storageMode);
+            const maxBytes = this.isGuest && this.guestUploadConfig
+                ? Math.min(limit.maxBytes || Infinity, this.guestUploadConfig.maxFileSize)
+                : limit.maxBytes;
+
+            for (const file of files) {
+              if (maxBytes && file.size > maxBytes) {
+                this.showToast(`文件 [${file.name}] 超过限制 (${this.formatSize(maxBytes)})`, "error");
+                continue;
+              }
+              const item = {
+                name: file.name, size: file.size, file: file, status: "waiting",
+                preview: file.type.startsWith("image/") ? URL.createObjectURL(file) : null,
+                progress: 0, error: null, compressionStatus: "",
+              };
+              this.uploadingFiles.push(item);
+            }
+            this.startUpload();
+          },
+          async startUpload() {
+            const waiting = this.uploadingFiles.filter((f) => f.status === "waiting");
+            for (const item of waiting) {
+              try {
+                item.status = "uploading";
+                item.progress = 15;
+                if (!this.isGuest && item.file.size > this.uploadConfig.smallFileThreshold && this.getUploadLimit(this.storageMode).supportsChunkUpload) {
+                  await this.chunkedUpload(item);
+                } else {
+                  await this.directUpload(item);
+                }
+              } catch (err) {
+                item.status = "error";
+                item.error = err.message;
+              }
+            }
+            setTimeout(() => {
+              this.uploadingFiles = this.uploadingFiles.filter((f) => f.status !== "success");
+            }, 2500);
+          },
+          async directUpload(item) {
+            const formData = new FormData();
+            formData.append("file", item.file);
+            formData.append("storageMode", this.storageMode);
+            formData.append("folderPath", this.folderPath);
+            const res = await fetch(`${this.baseURL}/upload`, {
+              method: "POST", body: formData, credentials: "include",
+            });
+            const data = await res.json();
+            if (!res.ok || (Array.isArray(data) && data[0]?.error)) {
+              throw new Error(data[0]?.error || data.error || "上传未成功");
+            }
+            item.status = "success";
+            item.progress = 100;
+            const src = data[0]?.src;
+            const uploadedObj = { name: item.name, fileName: item.name, url: `${this.baseURL}${src}`, size: item.size, selected: false };
+            this.uploadedFiles.unshift(uploadedObj);
+            this.addToHistory(uploadedObj);
+          },
+          async chunkedUpload(item) {
+            const file = item.file;
+            const chunkSize = this.uploadConfig.chunkSize;
+            const totalChunks = Math.ceil(file.size / chunkSize);
+            const initRes = await fetch(`${this.baseURL}/api/chunked-upload/init`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                fileName: file.name, fileSize: file.size, fileType: file.type,
+                totalChunks: totalChunks, storageMode: this.storageMode, folderPath: this.folderPath,
+              }),
+              credentials: "include",
+            });
+            const initData = await initRes.json();
+            if (!initRes.ok) throw new Error(initData.error || "初始化分片失败");
+            const uploadId = initData.uploadId;
+
+            for (let i = 0; i < totalChunks; i++) {
+              const start = i * chunkSize;
+              const end = Math.min(start + chunkSize, file.size);
+              const chunk = file.slice(start, end);
+              const fd = new FormData();
+              fd.append("chunk", chunk);
+              fd.append("uploadId", uploadId);
+              fd.append("chunkIndex", i);
+              const chunkRes = await fetch(`${this.baseURL}/api/chunked-upload/chunk`, {
+                method: "POST", body: fd, credentials: "include",
+              });
+              if (!chunkRes.ok) throw new Error(`分片 ${i + 1} 上传失败`);
+              item.progress = Math.round(((i + 1) / totalChunks) * 90);
+            }
+            const completeRes = await fetch(`${this.baseURL}/api/chunked-upload/complete`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ uploadId }),
+              credentials: "include",
+            });
+            const completeData = await completeRes.json();
+            if (!completeRes.ok) throw new Error(completeData.error || "合并分片失败");
+            item.status = "success";
+            item.progress = 100;
+            const uploadedObj = { name: item.name, fileName: item.name, url: `${this.baseURL}${completeData.src}`, size: item.size, selected: false };
+            this.uploadedFiles.unshift(uploadedObj);
+            this.addToHistory(uploadedObj);
+          },
+          retryUpload(file) {
+            file.status = "waiting";
+            file.error = null;
+            this.startUpload();
+          },
+          retryAllFailed() {
+            this.uploadingFiles.filter((f) => f.status === "error").forEach((f) => {
+              f.status = "waiting";
+              f.error = null;
+            });
+            this.startUpload();
+          },
+          clearUploadQueue() { this.uploadingFiles = []; },
+          formatLink(file) {
+            const url = this.getCleanFileUrl(file);
+            const name = this.getDisplayName(file);
+            if (this.linkFormat === "markdown") return `![${name}](${url})`;
+            if (this.linkFormat === "html") return `<img src="${url}" alt="${name}">`;
+            if (this.linkFormat === "bbcode") return `[img]${url}[/img]`;
+            if (this.linkFormat === "ubb") return `[IMG]${url}[/IMG]`;
+            return url;
+          },
+          getBatchLinks() {
+            const targets = this.uploadedFiles.filter((f) => f.selected);
+            const list = targets.length ? targets : this.uploadedFiles;
+            return list.map((f) => this.formatLink(f)).join("\n");
+          },
+          copyLink(file) {
+            this.copyToClipboard(this.formatLink(file));
+            this.showToast("已复制直链", "success");
+          },
+          copySelectedLinks() {
+            this.copyToClipboard(this.getBatchLinks());
+            this.showToast(`已复制 ${this.selectedCount} 个链接`, "success");
+          },
+          selectAll() {
+            const target = !this.isAllSelected;
+            this.uploadedFiles.forEach((f) => (f.selected = target));
+          },
+          clearResults() { this.uploadedFiles = []; },
+          removeFromResults(idx) { this.uploadedFiles.splice(idx, 1); },
+          downloadFile(file) {
+            const a = document.createElement("a");
+            a.href = this.getCleanFileUrl(file);
+            a.download = this.getDisplayName(file);
+            a.click();
+          },
+          previewImage(url) { this.previewData = { type: "native-image", url }; },
+          openPreview(file) {
+            const name = this.getDisplayName(file);
+            const url = this.getCleanFileUrl(file);
+            const ext = name.split(".").pop().toLowerCase();
+            if (["jpg", "jpeg", "png", "webp", "gif", "svg"].includes(ext)) {
+              this.previewData = { type: "native-image", url, fileName: name };
+              return;
+            }
+            if (["mp4", "webm", "mp3", "wav", "pdf"].includes(ext)) {
+              this.previewData = { type: "iframe", iframeUrl: `${LOCAL_PREVIEW_PAGE}?url=${encodeURIComponent(url)}&title=${encodeURIComponent(name)}&embed=1`, url, fileName: name };
+              return;
+            }
+            this.downloadFile(file);
+          },
+          closePreview() {
+            if (this.$refs.previewIframe) this.$refs.previewIframe.src = "about:blank";
+            this.previewData = null;
+          },
+          copyPreviewLink() {
+            if (this.previewData) {
+              this.copyToClipboard(this.previewData.url);
+              this.showToast("直链已复制", "success");
+            }
+          },
+          downloadPreviewFile() {
+            if (this.previewData) {
+              const a = document.createElement("a");
+              a.href = this.previewData.url;
+              a.download = this.previewData.fileName || "file";
+              a.click();
+            }
+          },
+
+          /* =========================================================
+             ===== 本地历史：核心方法（全面升级） =====
+             ========================================================= */
+          persistHistory() {
+            try {
+              const serialized = this.uploadHistory.map((it) => ({
+                id: it.id,
+                name: it.name,
+                fileName: it.fileName,
+                url: it.url,
+                size: it.size,
+                storageMode: it.storageMode,
+                folderPath: it.folderPath,
+                uploadTime: it.uploadTime,
+              }));
+              localStorage.setItem("uploadHistory", JSON.stringify(serialized));
+            } catch (e) {
+              // 存储空间不足时自动裁剪一半后重试
+              try {
+                this.uploadHistory = this.uploadHistory.slice(
+                  0,
+                  Math.max(50, Math.floor(this.uploadHistory.length / 2))
+                );
+                localStorage.setItem("uploadHistory", JSON.stringify(this.uploadHistory));
+              } catch (_) {}
+            }
+          },
+          loadHistory() {
+            try {
+              const raw = localStorage.getItem("uploadHistory");
+              if (!raw) return;
+              const arr = JSON.parse(raw);
+              if (!Array.isArray(arr)) return;
+              this.uploadHistory = arr.map((it, i) => ({
+                id: it.id || `h_legacy_${i}_${Math.random().toString(36).slice(2, 6)}`,
+                name: it.name || "",
+                fileName: it.fileName || it.name || "未命名文件",
+                url: it.url || it.path || "",
+                size: Number(it.size) || 0,
+                storageMode: it.storageMode || "",
+                folderPath: it.folderPath || "",
+                uploadTime: Number(it.uploadTime || it.time) || 0,
+                selected: false,
+              }));
+            } catch (e) {
+              this.uploadHistory = [];
+            }
+          },
+          addToHistory(file) {
+            const url = this.getCleanFileUrl(file);
+            const entry = {
+              id: `h_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`,
+              name: file.name || "",
+              fileName: file.fileName || file.name || "未命名文件",
+              url: file.url || file.path || "",
+              size: Number(file.size) || 0,
+              storageMode: this.storageMode,
+              folderPath: this.folderPath || "",
+              uploadTime: Date.now(),
+              selected: false,
+            };
+            // 去重：同一地址只保留最新一条
+            const dupIdx = this.uploadHistory.findIndex(
+              (it) => this.getCleanFileUrl(it) === url
+            );
+            if (dupIdx > -1) this.uploadHistory.splice(dupIdx, 1);
+
+            this.uploadHistory.unshift(entry);
+            if (this.uploadHistory.length > this.historyMaxItems) {
+              this.uploadHistory = this.uploadHistory.slice(0, this.historyMaxItems);
+            }
+            this.persistHistory();
+          },
+          clearHistory() {
+            if (!this.uploadHistory.length) return;
+            if (!window.confirm(`确定清空全部 ${this.uploadHistory.length} 条本地历史吗？\n\n此操作不可撤销。`)) return;
+            this.uploadHistory = [];
+            try { localStorage.removeItem("uploadHistory"); } catch (e) {}
+            this.showToast("本地历史已清空", "success");
+          },
+          historyDelete(item) {
+            const idx = this.uploadHistory.findIndex((it) => it.id === item.id);
+            if (idx > -1) this.uploadHistory.splice(idx, 1);
+            this.persistHistory();
+            this.showToast("已删除该历史记录");
+          },
+          deleteHistorySelected() {
+            const list = this.historySorted.filter((it) => it.selected);
+            if (!list.length) return;
+            if (!window.confirm(`确定删除选中的 ${list.length} 条历史记录吗？`)) return;
+            const ids = new Set(list.map((it) => it.id));
+            this.uploadHistory = this.uploadHistory.filter((it) => !ids.has(it.id));
+            this.persistHistory();
+            this.showToast(`已删除 ${list.length} 条记录`, "success");
+          },
+          toggleHistorySelectAll() {
+            const target = !this.historyAllSelected;
+            this.historySorted.forEach((it) => {
+              it.selected = target;
+            });
+          },
+          historyCopyLink(item) {
+            this.copyToClipboard(this.formatLink(item));
+            this.showToast("已复制直链", "success");
+          },
+          copyHistorySelected() {
+            const list = this.historySorted.filter((it) => it.selected);
+            if (!list.length) return;
+            const text = list.map((it) => this.formatLink(it)).join("\n");
+            this.copyToClipboard(text);
+            this.showToast(`已复制 ${list.length} 条链接`, "success");
+          },
+          historyPreview(item) {
+            this.openPreview(item);
+          },
+          historyDownload(item) {
+            const a = document.createElement("a");
+            a.href = this.getCleanFileUrl(item);
+            a.download = this.getDisplayName(item);
+            a.target = "_blank";
+            a.rel = "noopener";
+            a.click();
+          },
+          addHistorySelectedToResults() {
+            const list = this.historySorted.filter((it) => it.selected);
+            if (!list.length) return;
+            let added = 0;
+            list.forEach((it) => {
+              const url = this.getCleanFileUrl(it);
+              if (this.uploadedFiles.some((f) => this.getCleanFileUrl(f) === url)) return;
+              this.uploadedFiles.unshift({
+                name: it.name,
+                fileName: it.fileName,
+                url: it.url,
+                size: it.size,
+                selected: false,
+              });
+              added++;
+            });
+            if (added) {
+              this.showToast(`已加入 ${added} 条到交付结果`, "success");
+            } else {
+              this.showToast("所选记录已存在于结果列表中");
+            }
+          },
+          exportHistory() {
+            const list = this.historySorted;
+            if (!list.length) return;
+            const lines = list.map(
+              (it) =>
+                `${this.getDisplayName(it)}\t${this.getCleanFileUrl(it)}\t${this.formatSize(it.size)}\t${this.formatHistoryTime(it.uploadTime)}`
+            );
+            const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = `upload-history-${new Date().toISOString().slice(0, 10)}.txt`;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(a.href), 1200);
+            this.showToast(`已导出 ${list.length} 条记录`, "success");
+          },
+          handleHistoryImgError(e, item) {
+            item._imgError = true;
+            this.$forceUpdate();
+          },
+          getFileCategory(filename) {
+            const ext = String(filename || "").split(".").pop().toLowerCase();
+            if (["jpg", "jpeg", "png", "webp", "gif", "svg", "bmp", "avif", "ico", "tiff"].includes(ext)) return "image";
+            if (["mp4", "webm", "mkv", "avi", "mov", "m4v", "flv", "wmv"].includes(ext)) return "video";
+            if (["mp3", "wav", "flac", "aac", "ogg", "m4a", "opus"].includes(ext)) return "audio";
+            if (["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "md", "csv", "json", "xml", "html", "zip", "rar", "7z", "tar", "gz"].includes(ext)) return "doc";
+            return "other";
+          },
+          formatHistoryTime(ts) {
+            if (!ts) return "未知时间";
+            const d = new Date(ts);
+            if (isNaN(d.getTime())) return "未知时间";
+            const now = new Date();
+            const pad = (n) => String(n).padStart(2, "0");
+            const hm = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+            if (d.toDateString() === now.toDateString()) return `今天 ${hm}`;
+            const y = new Date(now.getTime() - 86400000);
+            if (d.toDateString() === y.toDateString()) return `昨天 ${hm}`;
+            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${hm}`;
+          },
+          storageLabel(mode) {
+            const map = {
+              telegram: "Telegram",
+              r2: "R2",
+              s3: "S3",
+              discord: "Discord",
+              huggingface: "HuggingFace",
+              github: "GitHub",
+            };
+            return map[mode] || mode || "";
+          },
+          /* ===== 本地历史核心方法结束 ===== */
+
+          getDisplayName(item) { return item.fileName || item.name || "未命名文件"; },
+          getCleanFileUrl(item) {
+            const raw = item.url || item.path || "";
+            if (raw.startsWith("http")) return raw;
+            return `${this.baseURL}${raw}`;
+          },
+          isImageFile(filename) { return /\.(jpe?g|png|webp|gif|svg|bmp|avif|ico)$/i.test(filename || ""); },
+          getFileIcon(filename) {
+            const ext = (filename || "").split(".").pop().toLowerCase();
+            if (["mp4", "mkv", "avi", "mov", "webm"].includes(ext)) return "fas fa-video";
+            if (["mp3", "wav", "flac", "aac", "ogg", "m4a"].includes(ext)) return "fas fa-music";
+            if (["zip", "rar", "7z", "tar", "gz"].includes(ext)) return "fas fa-file-zipper";
+            if (["pdf", "doc", "docx", "txt", "md"].includes(ext)) return "fas fa-file-lines";
+            return "fas fa-file";
+          },
+          getStatusText(status) {
+            const texts = { waiting: "等待中", processing: "处理中", uploading: "上传中", success: "已完成", error: "失败" };
+            return texts[status] || status;
+          },
+          formatSize(bytes) {
+            if (!bytes) return "0 B";
+            const k = 1024;
+            const sizes = ["B", "KB", "MB", "GB"];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return (bytes / Math.pow(k, i)).toFixed(1) + " " + sizes[i];
+          },
+          copyToClipboard(text) {
+            const t = document.createElement("textarea");
+            t.value = text;
+            t.style.position = "fixed";
+            t.style.opacity = "0";
+            document.body.appendChild(t);
+            t.select();
+            document.execCommand("copy");
+            document.body.removeChild(t);
+          },
+          showToast(message, type = "info") {
+            this.toasts.push({ message, type });
+            setTimeout(() => { this.toasts.shift(); }, 2800);
+          },
+          async checkAuth() {
+            this.authChecking = true;
+            try {
+              const res = await fetch("/api/auth/check", { credentials: "include" });
+              const data = await res.json();
+              if (data.authRequired && !data.authenticated) {
+                if (data.guestUpload && data.guestUpload.enabled) {
+                  this.isGuest = true;
+                  this.guestUploadConfig = {
+                    maxFileSize: data.guestUpload.maxFileSize || 5 * 1024 * 1024,
+                    maxDailyUploads: data.guestUpload.dailyLimit || 10,
+                  };
+                  this.storageMode = "telegram";
+                  this.storageTarget = "Telegram 频道";
+                  return;
+                }
+              }
+              this.isAuthenticated = data.authenticated || false;
+            } catch (e) {
+            } finally {
+              this.authChecking = false;
+            }
+          },
+          async checkStorageTarget() {
+            try {
+              const res = await fetch("/api/status", { credentials: "include" });
+              const st = await res.json();
+              this.uploadLimits = st.uploadLimits || {};
+              const isEnabled = (backend) => !!(backend && (backend.connected || backend.configured || backend.enabled) && backend.enabled !== false);
+              this.r2Available = isEnabled(st.r2);
+              this.s3Available = isEnabled(st.s3);
+              this.discordAvailable = isEnabled(st.discord);
+              this.huggingfaceAvailable = isEnabled(st.huggingface);
+              this.githubAvailable = isEnabled(st.github);
+
+              const saved = localStorage.getItem("storageMode") || "telegram";
+              if (this.isStorageAvailable(saved)) {
+                this.setStorageMode(saved, true);
+              } else {
+                this.setStorageMode("telegram", true);
+              }
+            } catch (e) {
+              this.setStorageMode("telegram", true);
+            }
+          },
+          async handleLogout() {
+            try {
+              await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+              window.location.href = "/login.html";
+            } catch (e) {}
+          },
+        },
+        async mounted() {
+          try {
+            const th = localStorage.getItem("theme") || "light";
+            this.currentTheme = th;
+            document.documentElement.setAttribute("data-theme", th);
+
+            const ex = localStorage.getItem("folderTreeExpanded");
+            if (ex) this.expandedFolders = JSON.parse(ex) || {};
+
+            // 全面升级后的本地历史加载
+            this.loadHistory();
+          } catch (e) {}
+
+          await this.checkAuth();
+          await this.checkStorageTarget();
+          this.fetchUploadFolders();
+
+          this.globalPasteHandler = (e) => {
+            if (["INPUT", "TEXTAREA"].includes(e.target?.tagName)) return;
+            const files = Array.from(e.clipboardData?.files || []);
+            if (files.length) {
+              e.preventDefault();
+              this.processFiles(files);
+              this.showToast(`已捕获 ${files.length} 个剪贴板文件并加入上传`, "success");
+            }
+          };
+          document.addEventListener("paste", this.globalPasteHandler);
+        },
+        beforeDestroy() {
+          if (this.globalPasteHandler) document.removeEventListener("paste", this.globalPasteHandler);
+        },
+      });
+    </script>
+  </body>
+</html>
