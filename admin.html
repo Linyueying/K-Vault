@@ -1200,6 +1200,34 @@ new Vue({
     },
     closeMenus() { this.openMenu = null; },
 
+    /* ================= 筛选 / 视图 ================= */
+    setView(mode) {
+      if (this.viewMode === mode) return;
+      this.viewMode = mode;
+    },
+    setType(v) {
+      this.fileType = v;
+      this.currentPage = 1;
+      this.openMenu = null;
+    },
+    setStorage(v) {
+      if (this.storage === v) { this.openMenu = null; return; }
+      this.storage = v;
+      this.currentPage = 1;
+      this.openMenu = null;
+      this.refresh();
+    },
+    setSort(v) {
+      this.sort = v;
+      this.currentPage = 1;
+      this.openMenu = null;
+    },
+    setFilter(v) {
+      this.filter = v;
+      this.currentPage = 1;
+      this.openMenu = null;
+    },
+
     showToast(message, type = 'info') {
       this.toasts.push({ message, type });
       setTimeout(() => { this.toasts.shift(); }, 2600);
@@ -1749,6 +1777,7 @@ new Vue({
     sort(v)      { try { localStorage.setItem('sort', v); } catch (e) {} },
     filter(v)    { try { localStorage.setItem('filter', v); } catch (e) {} },
     fileType(v)  { try { localStorage.setItem('fileType', v); } catch (e) {} },
+    storage(v)   { try { localStorage.setItem('storage', v); } catch (e) {} },
     viewMode(v)  { try { localStorage.setItem('adminViewMode', v); } catch (e) {} },
     currentPage(v) {
       if (v > this.totalPages) this.currentPage = this.totalPages;
